@@ -3,4 +3,4 @@ A system to automatically analyse a set of recordings that have been made from t
 EE40098 – Coursework C,
 Set by Dr B W Metcalfe,
 Dept. of EE Engineering,
-University of Bath,
+University of Bath
