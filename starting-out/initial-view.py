@@ -4,7 +4,7 @@ from scipy.signal import butter, lfilter, find_peaks
 import matplotlib.pyplot as plt 
 import numpy as np
 
-def filter_data(data, samp_freq, low=10, high=750, order=2):
+def filter_data(data, samp_freq, low=10, high=2000, order=2):
     nyq_freq = samp_freq/2
 
     low_band = low/nyq_freq
@@ -22,6 +22,10 @@ def threshold_finder(filtered_data, thresh_factor):
     thr = thresh_factor * sigma_n
     return thr
 
+def env_diff_operator(data):
+    N_start = len(data)
+    
+
 def spike_extractor(filtered_data, threshold, window_time=2.5e-3):
 
     # sample_datapoints = window_time * samp_freq
@@ -33,12 +37,7 @@ def spike_extractor(filtered_data, threshold, window_time=2.5e-3):
     peak_indices = find_peaks(filtered_data, threshold)
     return peak_indices
 
-
-    
-    
-    
-
-mat = spio.loadmat('../neural-spike-sorting/datasets/submission.mat', squeeze_me=True)
+mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
 
 d = mat['d']
 
@@ -67,7 +66,7 @@ for peak in peaks[0]:
 
 fig, ax = plt.subplots(2, 1)
 
-# plt.xlim(1,2)
+plt.xlim(1,5)
 
 color = 'tab:red'
 ax[0].set_xlabel("Seconds")
