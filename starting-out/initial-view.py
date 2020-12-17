@@ -121,7 +121,7 @@ def spike_extractor(filtered_data, peaks, window_size=64):
 
 def spike_location_accuracy(index_test, index_train, class_test):
     # difference = len(index_test) - len(index_train)
-    correct_indexes = []
+    all_indexes = []
     incorrect_indexes = []
 
     index_train_compare=index_train[:]
@@ -130,18 +130,19 @@ def spike_location_accuracy(index_test, index_train, class_test):
         correct_flag = False
         for x in range(len(index_train_compare)):
             if abs(index-index_train_compare[x]) <= 50:
-                correct_indexes.append([index, class_test[i]])
                 correct_flag = True
                 break
         if not correct_flag:
             incorrect_indexes.append([index, class_test[i]])
         else:
             index_train_compare.pop(0)
+        
+        all_indexes.append([index, class_test[i],correct_flag])
         i += 1
 
-    success_rate = len(correct_indexes)/len(index_test)
+    success_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)
 
-    return incorrect_indexes, correct_indexes, success_rate
+    return incorrect_indexes, all_indexes, success_rate
 
 mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
 
@@ -166,7 +167,9 @@ time_test = []
 for index in index_test:
     time_test.append(time[int(index)])
 
-incorrect_peaks, correct_peaks, location_accuracy = spike_location_accuracy(index_test, index_train, class_test)
+incorrect_peaks, all_peaks, location_accuracy = spike_location_accuracy(index_test, index_train, class_test)
+
+labels = [x[1] for x in all_peaks if x[2]]
 
 print(location_accuracy)
 
@@ -177,13 +180,15 @@ for peak in index_train:
     peak_d.append(smoothed_d[int(peak)])
 
 good_spike_array, bad_spike_array = spike_extractor(smoothed_d, index_train)
+all_spike_array = good_spike_array #+ bad_spike_array
 
 good_spike_samples = [x[0] for x in good_spike_array]
 bad_spike_samples = [x[0] for x in bad_spike_array]
+all_samples = good_spike_samples #+ bad_spike_samples
 
 # Apply min-max scaling
 scaler = sk.preprocessing.MinMaxScaler()
-scaled_spike_samples = scaler.fit_transform(good_spike_samples)
+scaled_spike_samples = scaler.fit_transform(all_samples)
 
 # Do PCA
 pca = PCA(n_components=3)
@@ -191,67 +196,80 @@ pca_result = pca.fit_transform(scaled_spike_samples)
 
 # Split training and test
 train_portion = 0.8
-train_length = math.ceil(train_portion * len(good_spike_array))
-train_data = good_spike_samples[:train_length]
-test_data = good_spike_samples[train_length:]
+train_length = math.ceil(train_portion * len(all_spike_array))
+train_data = pca_result[:train_length]
+test_data = pca_result[train_length:]
+
+train_label = labels[:train_length]
+test_label = labels[train_length:]
 
 ## K Nearest Neighbours
-# neigh = KNeighborsClassifier(n_neighbors=5)
-# neigh.fit()
-    
-fig, ax = plt.subplots(4, 1)
+KNN = KNeighborsClassifier(n_neighbors=5)
+KNN.fit(train_data, train_label)
 
-x_start = 0
-x_end = 0.5
+predictions = KNN.predict(test_data)
 
-color = 'tab:red'
-ax[0].set_xlabel("Seconds")
-ax[0].set_ylabel("Amplitude (mV)", color=color)
-ax[0].plot(time, d, color)
-ax[0].scatter(time_test, d[index_test], color='black', marker='x', linewidths=1)
-ax[0].tick_params(axis='y', labelcolor=color)
-ax[0].set_xlim([x_start,x_end])
+correct = sum([1 for compare in zip(test_label,predictions) if compare[0] == compare[1]])
 
-color = 'tab:blue'
-ax[1].set_xlabel("Seconds")
-ax[1].set_ylabel("Amplitude (mV)", color=color)
-ax[1].plot(time, filtered_d, color)
-ax[1].tick_params(axis='y', labelcolor=color)
-ax[1].set_xlim([x_start,x_end])
+score = correct/len(predictions)
 
-color = 'tab:orange'
-ax[2].set_xlabel("Seconds")
-ax[2].set_ylabel("Amplitude (mV)", color=color)
-ax[2].tick_params(axis='y', labelcolor=color)
-ax[2].plot(time, smoothed_d, color=color)
-ax[2].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
-ax[2].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
-ax[2].set_xlim([x_start,x_end])
+print(correct)
+print(len(predictions))
+print(score)
 
-color = 'tab:green'
-ax[3].set_xlabel("Seconds")
-ax[3].set_ylabel("Amplitude (mV)", color=color)
-ax[3].tick_params(axis='y', labelcolor=color)
-ax[3].plot(time, energy_x, color=color)
-ax[3].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
-ax[3].set_xlim([x_start,x_end])
+# fig, ax = plt.subplots(4, 1)
+
+# x_start = 0
+# x_end = 0.5
+
+# color = 'tab:red'
+# ax[0].set_xlabel("Seconds")
+# ax[0].set_ylabel("Amplitude (mV)", color=color)
+# ax[0].plot(time, d, color)
+# ax[0].scatter(time_test, d[index_test], color='black', marker='x', linewidths=1)
+# ax[0].tick_params(axis='y', labelcolor=color)
+# ax[0].set_xlim([x_start,x_end])
+
+# color = 'tab:blue'
+# ax[1].set_xlabel("Seconds")
+# ax[1].set_ylabel("Amplitude (mV)", color=color)
+# ax[1].plot(time, filtered_d, color)
+# ax[1].tick_params(axis='y', labelcolor=color)
+# ax[1].set_xlim([x_start,x_end])
+
+# color = 'tab:orange'
+# ax[2].set_xlabel("Seconds")
+# ax[2].set_ylabel("Amplitude (mV)", color=color)
+# ax[2].tick_params(axis='y', labelcolor=color)
+# ax[2].plot(time, smoothed_d, color=color)
+# ax[2].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
+# ax[2].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
+# ax[2].set_xlim([x_start,x_end])
+
+# color = 'tab:green'
+# ax[3].set_xlabel("Seconds")
+# ax[3].set_ylabel("Amplitude (mV)", color=color)
+# ax[3].tick_params(axis='y', labelcolor=color)
+# ax[3].plot(time, energy_x, color=color)
+# ax[3].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
+# ax[3].set_xlim([x_start,x_end])
 
 
-# # Show the figure
-fig.tight_layout()
-# # plt.draw()
+# # # Show the figure
+# fig.tight_layout()
+# # # plt.draw()
 
-fig2, ax2 = plt.subplots(1, 2)
-i = 0
-for wave in good_spike_samples:
-    # if i%100 == 0:
-    ax2[0].plot(wave)
-    i += 1
-i = 0
-for wave in bad_spike_samples:
-    # if i%100 == 0:
-    ax2[1].plot(wave)
-    i += 1
+# fig2, ax2 = plt.subplots(1, 2)
+# i = 0
+# for wave in good_spike_samples:
+#     # if i%100 == 0:
+#     ax2[0].plot(wave)
+#     i += 1
+# i = 0
+# for wave in bad_spike_samples:
+#     # if i%100 == 0:
+#     ax2[1].plot(wave)
+#     i += 1
 
 # Plot the 1st principal component aginst the 2nd and use the 3rd for color
 fig3, ax3 = plt.subplots(figsize=(8, 8))
@@ -260,6 +278,14 @@ ax3.set_xlabel('1st principal component')
 ax3.set_ylabel('2nd principal component')
 ax3.set_title('first 3 principal components')
 fig3.subplots_adjust(wspace=0.1, hspace=0.1)
+
+# Plot the 1st principal component aginst the 2nd and use the 3rd for color
+fig4, ax4 = plt.subplots(figsize=(8, 8))
+ax4.scatter(test_data[:, 0], test_data[:, 1], c=predictions)
+ax4.set_xlabel('1st principal component')
+ax4.set_ylabel('2nd principal component')
+ax4.set_title('first 3 principal components')
+fig4.subplots_adjust(wspace=0.1, hspace=0.1)
 
 plt.show()
 
