@@ -1,10 +1,10 @@
 import scipy.io as spio
 # import scipy.stats as stat
-from scipy.signal import butter, lfilter, find_peaks
+from scipy.signal import butter, lfilter, find_peaks, savgol_filter
 import matplotlib.pyplot as plt 
 import numpy as np
 
-def filter_data(data, samp_freq, low=1, high=2000, order=2):
+def bandpass_filter(data, samp_freq, low=10, high=10000, order=2):
     nyq_freq = samp_freq/2
 
     low_band = low/nyq_freq
@@ -83,38 +83,50 @@ def spike_extractor(filtered_data, window_time=2.5e-3):
 
     thresh_factor = 5
     threshold = threshold_finder(energy_x, thresh_factor)
+    threshold2 = threshold_finder(filtered_data,thresh_factor)
+
     print(threshold)
     peak_indices = find_peaks(energy_x, threshold)
-    return peak_indices, energy_x, threshold
+    return peak_indices, energy_x, threshold, threshold2
 
-mat = spio.loadmat('../neural-spike-sorting/datasets/submission.mat', squeeze_me=True)
+def smoothing_filter(filtered_data):
+
+    smoothed_data = savgol_filter(filtered_data, 27, 3)
+
+    diff = filtered_data - smoothed_data
+    return smoothed_data
+
+mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
 
 d = mat['d']
 
 samp_freq = 25000
-filtered_d  = filter_data(d, samp_freq)
+
+filtered_d  = bandpass_filter(d, samp_freq)
+
+smoothed_d = smoothing_filter(filtered_d)
 
 time = np.linspace(0, len(d)*1/samp_freq, len(d))
 time = list(time)
 
 individual_sample_time = 2.5e-3
 
-peaks, energy_x, threshold = spike_extractor(filtered_d)
+peaks, energy_x, edo_threshold, filtered_threshold = spike_extractor(smoothed_d)
 
 peak_times = []
 peak_d = []
 for peak in peaks[0]:
     peak_times.append(time[int(peak)])
-    peak_d.append(filtered_d[int(peak)])
+    peak_d.append(smoothed_d[int(peak)])
 
 
 # Index = mat['Index']
 # Class = mat['Class']
 
-fig, ax = plt.subplots(3, 1)
+fig, ax = plt.subplots(4, 1)
 
-x_start = 0.05
-x_end = 0.25
+x_start = 0.3
+x_end = 0.4
 
 color = 'tab:red'
 ax[0].set_xlabel("Seconds")
@@ -128,16 +140,25 @@ ax[1].set_xlabel("Seconds")
 ax[1].set_ylabel("Amplitude (mV)", color=color)
 ax[1].plot(time, filtered_d, color)
 ax[1].tick_params(axis='y', labelcolor=color)
-ax[1].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
 ax[1].set_xlim([x_start,x_end])
 
-color = 'tab:green'
+color = 'tab:orange'
 ax[2].set_xlabel("Seconds")
 ax[2].set_ylabel("Amplitude (mV)", color=color)
 ax[2].tick_params(axis='y', labelcolor=color)
-ax[2].plot(time, energy_x, color=color)
-ax[2].plot([0,58], [threshold, threshold], color='yellow')
+ax[2].plot(time, smoothed_d, color=color)
+# ax[2].plot([0,58], [threshold, threshold], color='yellow')
+ax[2].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
+ax[2].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
 ax[2].set_xlim([x_start,x_end])
+
+color = 'tab:green'
+ax[3].set_xlabel("Seconds")
+ax[3].set_ylabel("Amplitude (mV)", color=color)
+ax[3].tick_params(axis='y', labelcolor=color)
+ax[3].plot(time, energy_x, color=color)
+ax[3].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
+ax[3].set_xlim([x_start,x_end])
 
 
 # # Show the figure
