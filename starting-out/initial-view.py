@@ -119,27 +119,29 @@ def spike_extractor(filtered_data, peaks, window_size=64):
 
     return single_sample_array, multiple_sample_array
 
-def spike_location_accuracy(index_test, index_train):
+def spike_location_accuracy(index_test, index_train, class_test):
     # difference = len(index_test) - len(index_train)
-    correct_indexes = 0
+    correct_indexes = []
     incorrect_indexes = []
 
     index_train_compare=index_train[:]
+    i = 0
     for index in index_test:
         correct_flag = False
         for x in range(len(index_train_compare)):
             if abs(index-index_train_compare[x]) <= 50:
-                correct_indexes += 1
+                correct_indexes.append([index, class_test[i]])
                 correct_flag = True
                 break
         if not correct_flag:
-            incorrect_indexes.append(index)
+            incorrect_indexes.append([index, class_test[i]])
         else:
             index_train_compare.pop(0)
+        i += 1
 
-    success_rate = correct_indexes/len(index_test)
+    success_rate = len(correct_indexes)/len(index_test)
 
-    return incorrect_indexes, success_rate
+    return incorrect_indexes, correct_indexes, success_rate
 
 mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
 
@@ -159,6 +161,14 @@ individual_sample_time = 2.5e-3
 
 peaks, energy_x, edo_threshold, filtered_threshold = spike_detector(smoothed_d)
 index_train = list(peaks[0])
+
+time_test = []
+for index in index_test:
+    time_test.append(time[int(index)])
+
+incorrect_peaks, correct_peaks, location_accuracy = spike_location_accuracy(index_test, index_train, class_test)
+
+print(location_accuracy)
 
 peak_times = []
 peak_d = []
@@ -182,22 +192,12 @@ pca_result = pca.fit_transform(scaled_spike_samples)
 # Split training and test
 train_portion = 0.8
 train_length = math.ceil(train_portion * len(good_spike_array))
-train_data = good_spike_array[:train_length]
-test_data = good_spike_array[train_length:]
+train_data = good_spike_samples[:train_length]
+test_data = good_spike_samples[train_length:]
 
 ## K Nearest Neighbours
 # neigh = KNeighborsClassifier(n_neighbors=5)
 # neigh.fit()
-
-
-time_test = []
-for index in index_test:
-    time_test.append(time[int(index)])
-
-
-incorrect_peaks, location_accuracy = spike_location_accuracy(index_test, index_train)
-
-print(location_accuracy)
     
 fig, ax = plt.subplots(4, 1)
 
@@ -262,3 +262,5 @@ ax3.set_title('first 3 principal components')
 fig3.subplots_adjust(wspace=0.1, hspace=0.1)
 
 plt.show()
+
+print('fin')
