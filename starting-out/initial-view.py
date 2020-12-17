@@ -71,7 +71,7 @@ def envel_deriv_operator(x):
 
     return x_edo[0:initial_xlen]
     
-def spike_extractor(filtered_data, window_time=2.5e-3):
+def spike_detector(filtered_data, window_time=2.5e-3):
 
     # sample_datapoints = window_time * samp_freq
     window_datapoints = 60
@@ -93,7 +93,6 @@ def smoothing_filter(filtered_data):
 
     smoothed_data = savgol_filter(filtered_data, 27, 3)
 
-    diff = filtered_data - smoothed_data
     return smoothed_data
 
 mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
