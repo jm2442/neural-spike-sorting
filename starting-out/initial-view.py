@@ -4,6 +4,7 @@ from scipy.signal import butter, lfilter, find_peaks, savgol_filter
 import matplotlib.pyplot as plt 
 import numpy as np
 import sklearn as sk
+import math
 from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -112,17 +113,39 @@ def spike_extractor(filtered_data, peaks, window_size=64):
 
         if x+1 < len(peaks):
             if peaks[x-1] < current_peak-(window_midpoint*2) and peaks[x+1] > current_peak+(window_midpoint*2):
-                single_sample_array.append(aligned_window)
+                single_sample_array.append([aligned_window, peaks[x]])
             else:
-                multiple_sample_array.append(aligned_window)
+                multiple_sample_array.append([aligned_window, peaks[x]])
 
     return single_sample_array, multiple_sample_array
 
+def spike_location_accuracy(index_test, index_train):
+    # difference = len(index_test) - len(index_train)
+    correct_indexes = 0
+    incorrect_indexes = []
 
+    index_train_compare=index_train[:]
+    for index in index_test:
+        correct_flag = False
+        for x in range(len(index_train_compare)):
+            if abs(index-index_train_compare[x]) <= 50:
+                correct_indexes += 1
+                correct_flag = True
+                break
+        if not correct_flag:
+            incorrect_indexes.append(index)
+        else:
+            index_train_compare.pop(0)
+
+    success_rate = correct_indexes/len(index_test)
+
+    return incorrect_indexes, success_rate
 
 mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
 
 d = mat['d']
+
+index_test, class_test = (list(t) for t in zip(*sorted(zip(mat['Index'], mat['Class']))))
 
 samp_freq = 25000
 
@@ -145,95 +168,97 @@ for peak in index_train:
 
 good_spike_array, bad_spike_array = spike_extractor(smoothed_d, index_train)
 
+good_spike_samples = [x[0] for x in good_spike_array]
+bad_spike_samples = [x[0] for x in bad_spike_array]
+
 # Apply min-max scaling
 scaler = sk.preprocessing.MinMaxScaler()
-scaled_spike_samples = scaler.fit_transform(good_spike_array)
+scaled_spike_samples = scaler.fit_transform(good_spike_samples)
 
 # Do PCA
 pca = PCA(n_components=3)
 pca_result = pca.fit_transform(scaled_spike_samples)
 
 # Split training and test
-training_portion = 0.8
+train_portion = 0.8
+train_length = math.ceil(train_portion * len(good_spike_array))
+train_data = good_spike_array[:train_length]
+test_data = good_spike_array[train_length:]
 
 ## K Nearest Neighbours
 # neigh = KNeighborsClassifier(n_neighbors=5)
 # neigh.fit()
 
-index_test, class_test = (list(t) for t in zip(*sorted(zip(mat['Index'], mat['Class']))))
 
 time_test = []
 for index in index_test:
     time_test.append(time[int(index)])
 
-for index in index_test:
+
+incorrect_peaks, location_accuracy = spike_location_accuracy(index_test, index_train)
+
+print(location_accuracy)
     
+fig, ax = plt.subplots(4, 1)
 
-# fig, ax = plt.subplots(4, 1)
+x_start = 0
+x_end = 0.5
 
-# x_start = 0
-# x_end = 0.5
+color = 'tab:red'
+ax[0].set_xlabel("Seconds")
+ax[0].set_ylabel("Amplitude (mV)", color=color)
+ax[0].plot(time, d, color)
+ax[0].scatter(time_test, d[index_test], color='black', marker='x', linewidths=1)
+ax[0].tick_params(axis='y', labelcolor=color)
+ax[0].set_xlim([x_start,x_end])
 
-# color = 'tab:red'
-# ax[0].set_xlabel("Seconds")
-# ax[0].set_ylabel("Amplitude (mV)", color=color)
-# ax[0].plot(time, d, color)
-# ax[0].scatter(time_test, d[index_test], color='black', marker='x', linewidths=1)
-# ax[0].tick_params(axis='y', labelcolor=color)
-# ax[0].set_xlim([x_start,x_end])
+color = 'tab:blue'
+ax[1].set_xlabel("Seconds")
+ax[1].set_ylabel("Amplitude (mV)", color=color)
+ax[1].plot(time, filtered_d, color)
+ax[1].tick_params(axis='y', labelcolor=color)
+ax[1].set_xlim([x_start,x_end])
 
-# color = 'tab:blue'
-# ax[1].set_xlabel("Seconds")
-# ax[1].set_ylabel("Amplitude (mV)", color=color)
-# ax[1].plot(time, filtered_d, color)
-# ax[1].tick_params(axis='y', labelcolor=color)
-# ax[1].set_xlim([x_start,x_end])
+color = 'tab:orange'
+ax[2].set_xlabel("Seconds")
+ax[2].set_ylabel("Amplitude (mV)", color=color)
+ax[2].tick_params(axis='y', labelcolor=color)
+ax[2].plot(time, smoothed_d, color=color)
+ax[2].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
+ax[2].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
+ax[2].set_xlim([x_start,x_end])
 
-# color = 'tab:orange'
-# ax[2].set_xlabel("Seconds")
-# ax[2].set_ylabel("Amplitude (mV)", color=color)
-# ax[2].tick_params(axis='y', labelcolor=color)
-# ax[2].plot(time, smoothed_d, color=color)
-# ax[2].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
-# ax[2].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
-# ax[2].set_xlim([x_start,x_end])
-
-# color = 'tab:green'
-# ax[3].set_xlabel("Seconds")
-# ax[3].set_ylabel("Amplitude (mV)", color=color)
-# ax[3].tick_params(axis='y', labelcolor=color)
-# ax[3].plot(time, energy_x, color=color)
-# ax[3].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
-# ax[3].set_xlim([x_start,x_end])
+color = 'tab:green'
+ax[3].set_xlabel("Seconds")
+ax[3].set_ylabel("Amplitude (mV)", color=color)
+ax[3].tick_params(axis='y', labelcolor=color)
+ax[3].plot(time, energy_x, color=color)
+ax[3].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
+ax[3].set_xlim([x_start,x_end])
 
 
-# # # Show the figure
-# # fig.tight_layout()
+# # Show the figure
+fig.tight_layout()
 # # plt.draw()
 
-# # newFig = plt.figure(2)
-# # i = 0
-# # for wave in good_spike_array:
-# #     # if i%100 == 0:
-# #     plt.plot(wave)
-# #     i += 1
-    
-# # newFig2 = plt.figure(3)
-# # i = 0
-# # for wave in bad_spike_array:
-# #     # if i%100 == 0:
-# #     plt.plot(wave)
-# #     i += 1
+fig2, ax2 = plt.subplots(1, 2)
+i = 0
+for wave in good_spike_samples:
+    # if i%100 == 0:
+    ax2[0].plot(wave)
+    i += 1
+i = 0
+for wave in bad_spike_samples:
+    # if i%100 == 0:
+    ax2[1].plot(wave)
+    i += 1
 
-# # Plot the 1st principal component aginst the 2nd and use the 3rd for color
-# fig, ax = plt.subplots(figsize=(8, 8))
-# ax.scatter(pca_result[:, 0], pca_result[:, 1], c=pca_result[:, 2])
-# ax.set_xlabel('1st principal component')
-# ax.set_ylabel('2nd principal component')
-# ax.set_title('first 3 principal components')
+# Plot the 1st principal component aginst the 2nd and use the 3rd for color
+fig3, ax3 = plt.subplots(figsize=(8, 8))
+ax3.scatter(pca_result[:, 0], pca_result[:, 1], c=pca_result[:, 2])
+ax3.set_xlabel('1st principal component')
+ax3.set_ylabel('2nd principal component')
+ax3.set_title('first 3 principal components')
+fig3.subplots_adjust(wspace=0.1, hspace=0.1)
 
-# fig.subplots_adjust(wspace=0.1, hspace=0.1)
-
-
-
-# plt.show()
+plt.show()
