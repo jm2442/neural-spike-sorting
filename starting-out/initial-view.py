@@ -7,6 +7,7 @@ import sklearn as sk
 import math
 from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
 
 def bandpass_filter(data, samp_freq, low=1, high=2000, order=2):
     nyq_freq = samp_freq/2
@@ -97,7 +98,7 @@ def spike_extractor(filtered_data, peaks, window_size=64):
 
     # Do initial extraction of spike according to peak from energy operator
     single_sample_array = []
-    multiple_sample_array = []
+    # multiple_sample_array = []
     window_midpoint = window_size//2
 
     for x in range(len(peaks)):
@@ -115,9 +116,11 @@ def spike_extractor(filtered_data, peaks, window_size=64):
             if peaks[x-1] < current_peak-(window_midpoint*2) and peaks[x+1] > current_peak+(window_midpoint*2):
                 single_sample_array.append([aligned_window, peaks[x]])
             else:
-                multiple_sample_array.append([aligned_window, peaks[x]])
+                single_sample_array.append([aligned_window, peaks[x]])
+        else:
+            single_sample_array.append([aligned_window, peaks[x]])
 
-    return single_sample_array, multiple_sample_array
+    return single_sample_array#, multiple_sample_array
 
 def spike_location_accuracy(index_test, index_train, class_test):
     # difference = len(index_test) - len(index_train)
@@ -158,7 +161,7 @@ smoothed_d = smoothing_filter(filtered_d)
 
 time = list(np.linspace(0, len(d)*1/samp_freq, len(d)))
 
-individual_sample_time = 2.5e-3
+# individual_sample_time = 2.5e-3
 
 peaks, energy_x, edo_threshold, filtered_threshold = spike_detector(smoothed_d)
 index_train = list(peaks[0])
@@ -179,11 +182,11 @@ for peak in index_train:
     peak_times.append(time[int(peak)])
     peak_d.append(smoothed_d[int(peak)])
 
-good_spike_array, bad_spike_array = spike_extractor(smoothed_d, index_train)
+good_spike_array = spike_extractor(smoothed_d, index_train) #, bad_spike_array
 all_spike_array = good_spike_array #+ bad_spike_array
 
 good_spike_samples = [x[0] for x in good_spike_array]
-bad_spike_samples = [x[0] for x in bad_spike_array]
+#bad_spike_samples = [x[0] for x in bad_spike_array]
 all_samples = good_spike_samples #+ bad_spike_samples
 
 # Apply min-max scaling
@@ -195,16 +198,17 @@ pca = PCA(n_components=3)
 pca_result = pca.fit_transform(scaled_spike_samples)
 
 # Split training and test
-train_portion = 0.8
-train_length = math.ceil(train_portion * len(all_spike_array))
-train_data = pca_result[:train_length]
-test_data = pca_result[train_length:]
+# train_portion = 0.8
+# train_length = math.ceil(train_portion * len(all_spike_array))
+# train_data = pca_result[:train_length]
+# test_data = pca_result[train_length:]
 
-train_label = labels[:train_length]
-test_label = labels[train_length:]
+# train_label = labels[:train_length]
+# test_label = labels[train_length:]
+train_data, test_data, train_label, test_label = train_test_split(pca_result[:,0:2], labels, test_size=0.20)
 
 ## K Nearest Neighbours
-KNN = KNeighborsClassifier(n_neighbors=5)
+KNN = KNeighborsClassifier(n_neighbors=10)
 KNN.fit(train_data, train_label)
 
 predictions = KNN.predict(test_data)
@@ -279,12 +283,13 @@ ax3.set_ylabel('2nd principal component')
 ax3.set_title('first 3 principal components')
 fig3.subplots_adjust(wspace=0.1, hspace=0.1)
 
+
 # Plot the 1st principal component aginst the 2nd and use the 3rd for color
 fig4, ax4 = plt.subplots(figsize=(8, 8))
 ax4.scatter(test_data[:, 0], test_data[:, 1], c=predictions)
 ax4.set_xlabel('1st principal component')
 ax4.set_ylabel('2nd principal component')
-ax4.set_title('first 3 principal components')
+ax4.set_title('Spike')
 fig4.subplots_adjust(wspace=0.1, hspace=0.1)
 
 plt.show()
