@@ -76,19 +76,18 @@ def envel_deriv_operator(x):
 
     return x_edo[0:initial_xlen]
     
-def spike_detector(filtered_data):
+def spike_detector(filtered_data, energy_threshold=25):
 
     energy_x = envel_deriv_operator(filtered_data)
 
-    thresh_factor = 10
-    threshold = threshold_finder(energy_x, thresh_factor)
+    threshold = threshold_finder(energy_x, energy_threshold)
     thresh_factor = 5
     threshold2 = threshold_finder(filtered_data,thresh_factor)
 
     peak_indices = find_peaks(energy_x, threshold)
     return peak_indices, energy_x, threshold, threshold2
 
-def smoothing_filter(filtered_data, window=21):
+def smoothing_filter(filtered_data, window=17):
 
     smoothed_data = savgol_filter(filtered_data, window, 3)
 
@@ -172,6 +171,8 @@ for index in index_test:
 
 incorrect_peaks, all_peaks, location_accuracy = spike_location_accuracy(index_test, index_train, class_test)
 
+print(incorrect_peaks)
+
 labels = [x[1] for x in all_peaks if x[2]]
 
 print(location_accuracy)
@@ -198,21 +199,18 @@ pca = PCA(n_components=3)
 pca_result = pca.fit_transform(scaled_spike_samples)
 
 # Split training and test
-# train_portion = 0.8
-# train_length = math.ceil(train_portion * len(all_spike_array))
-# train_data = pca_result[:train_length]
-# test_data = pca_result[train_length:]
-
-# train_label = labels[:train_length]
-# test_label = labels[train_length:]
 train_data, test_data, train_label, test_label = train_test_split(pca_result[:,0:2], labels, test_size=0.20)
 
 ## K Nearest Neighbours
-KNN = KNeighborsClassifier(n_neighbors=10)
+KNN = KNeighborsClassifier(n_neighbors=20)
 KNN.fit(train_data, train_label)
 
 predictions = KNN.predict(test_data)
 
+cluster_list=[1, 2, 3, 4]
+for cluster in cluster_list:
+    cluster_list[cluster-1] = [all_samples[x] for x in range(len(test_data)) if predictions[x] == cluster]
+    
 correct = sum([1 for compare in zip(test_label,predictions) if compare[0] == compare[1]])
 
 score = correct/len(predictions)
@@ -221,62 +219,62 @@ print(correct)
 print(len(predictions))
 print(score)
 
-# fig, ax = plt.subplots(4, 1)
+fig, ax = plt.subplots(2, 1)
 
-# x_start = 0
-# x_end = 0.5
+x_start = 2.6
+x_end = 2.65
 
-# color = 'tab:red'
-# ax[0].set_xlabel("Seconds")
-# ax[0].set_ylabel("Amplitude (mV)", color=color)
-# ax[0].plot(time, d, color)
+color = 'tab:red'
+ax[0].set_xlabel("Seconds")
+ax[0].set_ylabel("Amplitude (mV)", color=color)
+ax[0].plot(time, d, color)
 # ax[0].scatter(time_test, d[index_test], color='black', marker='x', linewidths=1)
-# ax[0].tick_params(axis='y', labelcolor=color)
-# ax[0].set_xlim([x_start,x_end])
+ax[0].tick_params(axis='y', labelcolor=color)
+ax[0].set_xlim([x_start,x_end])
 
-# color = 'tab:blue'
+color = 'tab:blue'
 # ax[1].set_xlabel("Seconds")
 # ax[1].set_ylabel("Amplitude (mV)", color=color)
-# ax[1].plot(time, filtered_d, color)
-# ax[1].tick_params(axis='y', labelcolor=color)
+ax[0].plot(time, filtered_d, color)
+ax[0].tick_params(axis='y', labelcolor=color)
 # ax[1].set_xlim([x_start,x_end])
 
-# color = 'tab:orange'
-# ax[2].set_xlabel("Seconds")
-# ax[2].set_ylabel("Amplitude (mV)", color=color)
-# ax[2].tick_params(axis='y', labelcolor=color)
-# ax[2].plot(time, smoothed_d, color=color)
-# ax[2].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
-# ax[2].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
-# ax[2].set_xlim([x_start,x_end])
+color = 'tab:orange'
+ax[1].set_xlabel("Seconds")
+ax[1].set_ylabel("Amplitude (mV)", color=color)
+ax[1].tick_params(axis='y', labelcolor=color)
+ax[1].plot(time, smoothed_d, color=color)
+# ax[1].scatter(peak_times, peak_d, color='black', marker='x', linewidths=1)
+ax[1].plot([0,58], [filtered_threshold, filtered_threshold], color='purple')
+ax[1].set_xlim([x_start,x_end])
 
-# color = 'tab:green'
+color = 'tab:green'
 # ax[3].set_xlabel("Seconds")
 # ax[3].set_ylabel("Amplitude (mV)", color=color)
 # ax[3].tick_params(axis='y', labelcolor=color)
-# ax[3].plot(time, energy_x, color=color)
-# ax[3].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
+ax[1].plot(time, energy_x, color=color)
+ax[1].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
 # ax[3].set_xlim([x_start,x_end])
 
 
 # # # Show the figure
-# fig.tight_layout()
+fig.tight_layout()
 # # # plt.draw()
 
-# fig2, ax2 = plt.subplots(1, 2)
-# i = 0
-# for wave in good_spike_samples:
-#     # if i%100 == 0:
-#     ax2[0].plot(wave)
-#     i += 1
-# i = 0
-# for wave in bad_spike_samples:
-#     # if i%100 == 0:
-#     ax2[1].plot(wave)
-#     i += 1
+fig2, ax2 = plt.subplots(1, 1)
+i = 0
+for wave in good_spike_samples:
+    # if i%100 == 0:
+    ax2.plot(wave)
+    i += 1
+i = 0
+# # for wave in bad_spike_samples:
+# #     # if i%100 == 0:
+# #     ax2[1].plot(wave)
+# #     i += 1
 
 # Plot the 1st principal component aginst the 2nd and use the 3rd for color
-fig3, ax3 = plt.subplots(figsize=(8, 8))
+fig3, ax3 = plt.subplots()
 ax3.scatter(pca_result[:, 0], pca_result[:, 1], c=pca_result[:, 2])
 ax3.set_xlabel('1st principal component')
 ax3.set_ylabel('2nd principal component')
@@ -285,12 +283,28 @@ fig3.subplots_adjust(wspace=0.1, hspace=0.1)
 
 
 # Plot the 1st principal component aginst the 2nd and use the 3rd for color
-fig4, ax4 = plt.subplots(figsize=(8, 8))
-ax4.scatter(test_data[:, 0], test_data[:, 1], c=predictions)
-ax4.set_xlabel('1st principal component')
-ax4.set_ylabel('2nd principal component')
-ax4.set_title('Spike')
-fig4.subplots_adjust(wspace=0.1, hspace=0.1)
+fig4, ax4 = plt.subplots(1,2)
+ax4[0].scatter(test_data[:, 0], test_data[:, 1], c=predictions)
+ax4[0].set_xlabel('1st principal component')
+ax4[0].set_ylabel('2nd principal component')
+ax4[0].set_title('Spike')
+# fig4.subplots_adjust(wspace=0.1, hspace=0.1)
+# plt.legend()
+
+# fig5, ax5 = plt.subplots(1, 2, figsize=(15, 5))
+# time = np.linspace(0, wave_form.shape[1]/sf, wave_form.shape[1])*1000
+for i in range(4):
+    cluster_mean = np.array(cluster_list[i]).mean(axis=0)
+    cluster_std = np.array(cluster_list[i]).std(axis=0)
+
+    ax4[1].plot(cluster_mean, label='Cluster {}'.format(i))
+    ax4[1].fill_between(cluster_mean-cluster_std, cluster_mean+cluster_std, alpha=0.15)
+
+ax4[1].set_title('average waveforms', fontsize=23)
+ax4[1].legend()
+# ax5[1].set_xlim([0, time[-1]])
+ax4[1].set_xlabel('time [ms]', fontsize=20)
+ax4[1].set_ylabel('amplitude [uV]', fontsize=20)
 
 plt.show()
 
