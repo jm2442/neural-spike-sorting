@@ -1,4 +1,5 @@
 from scipy.signal import butter, lfilter, savgol_filter
+from decimal import *
 
 def bandpass(data, samp_freq, low=1, high=2000, order=2):
     nyq_freq = samp_freq/2
@@ -9,7 +10,15 @@ def bandpass(data, samp_freq, low=1, high=2000, order=2):
 
     return filtered_data
 
-def smoothing(filtered_data, window=17):
-    smoothed_data = savgol_filter(filtered_data, window, 3)
+def smoothing(filtered_data, window_size=17):
+
+    new_window_size = int(Decimal(str(window_size)).quantize(Decimal('1.'), rounding=ROUND_UP))
+    if new_window_size % 2 == 0:
+        if new_window_size - window_size + 0.5 < 0:
+            new_window_size += 1
+        else:
+            new_window_size -= 1
+
+    smoothed_data = savgol_filter(filtered_data, int(round(new_window_size,0)), 3)
 
     return smoothed_data

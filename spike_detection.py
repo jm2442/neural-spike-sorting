@@ -65,11 +65,11 @@ def peak_detector(filtered_data, energy_threshold=25):
     threshold = threshold_finder(energy_x, energy_threshold)
     thresh_factor = 5
     threshold2 = threshold_finder(filtered_data,thresh_factor)
-    peak_indices = find_peaks(energy_x, threshold)
+    peak_indices = find_peaks(energy_x, threshold, prominence=1)
 
     return peak_indices, energy_x, threshold, threshold2
 
-def peak_location_accuracy(index_test, index_train, class_test):
+def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
     # difference = len(index_test) - len(index_train)
     all_indexes = []
     incorrect_indexes = []
@@ -90,8 +90,8 @@ def peak_location_accuracy(index_test, index_train, class_test):
         all_indexes.append([index, class_test[i],correct_flag])
         i += 1
 
-    success_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)
+    loc_succ_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)
 
-    metrics.peak_location(incorrect_indexes, success_rate)
+    metrics.peak_location(incorrect_indexes, loc_succ_rate, print_on)
 
-    return all_indexes
+    return all_indexes, loc_succ_rate

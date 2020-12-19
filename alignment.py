@@ -5,7 +5,7 @@ def spike_extractor(filtered_data, peaks, window_size=64):
     # Do initial extraction of spike according to peak from energy operator
     single_sample_array = []
     # multiple_sample_array = []
-    window_midpoint = window_size//2
+    window_midpoint = int(window_size)//2
 
     for x in range(len(peaks)):
 
