@@ -13,11 +13,25 @@ import classification as classifier
 import plot
 import performance_metrics as metrics
     
-def spike_sorter(params):
+def spike_sorter(params):#, args):
 
-    low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,num_neighbors = params
-
+    part = 2
     print_on = False
+    print(params)
+
+    low_cutoff = 46
+    high_cutoff = 3467
+    smooth_size = 17
+    edo_thresh_factor = 13
+    window_size = 22
+
+    if part == 2:
+
+        num_layers, num_neurons, act_function, alpha, learn_rate_type = params
+
+    elif part == 3:
+
+        num_neighbors = params
 
     # Load corresponding dataset from .mat file provided
     mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
@@ -50,16 +64,24 @@ def spike_sorter(params):
     spike_samp_arr = align.spike_extractor(smth_d, idx_train, window_size)
     d_samp = [x[0] for x in spike_samp_arr]
 
-    # Preform PCA to extract the most important features and reduce dimension
-    pca_dim = 3
-    pca = feat_ex_reduce.dimension_reducer(d_samp, pca_dim)
 
-    # Split training and test
     test_percent = 0.25
-    train_d, test_d, train_lbl, test_lbl = train_test_split(pca[:,0:2], found_pk_lbl, test_size=test_percent, )
 
-    # Preform K Nearest Neighbours classification
-    pred_lbl = classifier.KNN(train_d, train_lbl, test_d, num_neighbors)
+    if part == 2:
+
+        train_d, test_d, train_lbl, test_lbl = train_test_split(d_samp, found_pk_lbl, test_size=test_percent)
+        pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, num_layers, num_neurons, act_function, alpha, learn_rate_type)
+
+    elif part == 3:
+        # Preform PCA to extract the most important features and reduce dimension
+        pca_dim = 3
+        pca = feat_ex_reduce.dimension_reducer(d_samp, pca_dim)
+
+        # Split training and test
+        train_d, test_d, train_lbl, test_lbl = train_test_split(pca[:,0:2], found_pk_lbl, test_size=test_percent)
+
+        # Preform K Nearest Neighbours classification
+        pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, num_neighbors)
 
     score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
 
@@ -76,7 +98,8 @@ def spike_sorter(params):
     
     print("Final Score = " + str(round(peak_loc_success * score * 100, 2)))
 
-    return peak_loc_success * score
+    return peak_loc_success #* score
 
 # TO DO 
 # PLOT LABELS< LEGENDS< ETC
+# Offset from peak to rising edge
