@@ -59,7 +59,6 @@ for key, value in params.items():
 
 # total_success = spsrt.spike_sorter(x0)#, args)
 
-# print(params)
 result = opt.dual_annealing(objective, bounds=bounds, maxiter=25) #, args=args # , x0=x0
 print(result)
 print("finished")

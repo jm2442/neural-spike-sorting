@@ -12,7 +12,7 @@ def peak_location(incorrect_indexes, success_rate, print_on=True):
         
         print("*"*20)
         print("Peak Location Accuracy (%) = " + str(round(success_rate*100, 2)))
-        print("*"*20)
+        # print("*"*20)
 
 
 def peak_classification(test_label, prediction_label, print_on=True):
@@ -62,10 +62,10 @@ def peak_classification(test_label, prediction_label, print_on=True):
 
     # score = correct/len(prediction_label)
 
-    if print_on:
-        print("*"*20)
-        print("Weighted F1 score (%) = "+ str(round(weighted_f1_score*100, 2)))
-        print("*"*20)
+    # if print_on:
+    #     print("*"*20)
+    #     print("Weighted F1 score (%) = "+ str(round(weighted_f1_score*100, 2)))
+    #     print("*"*20)
 
     return weighted_f1_score, spike_metrics
 

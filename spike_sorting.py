@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sklearn as sk
 import math
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 ###
 import filtering as filt
 import spike_detection as spdt
@@ -63,13 +63,23 @@ def spike_sorter(params):#, args):
     spike_samp_arr = align.spike_extractor(smth_d, idx_train, window_size)
     d_samp = spike_samp_arr#[x[0] for x in spike_samp_arr]
 
-    test_percent = 0.25
+    k_splits = 5
 
     if part == 2:
 
-        train_d, test_d, train_lbl, test_lbl = train_test_split(d_samp, found_pk_lbl, test_size=test_percent)
+        # train_d, test_d, train_lbl, test_lbl = train_test_split(d_samp, found_pk_lbl, test_size=test_percent)
 
-        pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on)
+        kf  = KFold(n_splits=k_splits)
+        kth_score = []
+        for train_k, test_k in kf.split(d_samp):
+            train_d, test_d = np.array(d_samp)[train_k], np.array(d_samp)[test_k]
+            train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
+        
+            pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on)
+
+            f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+
+            kth_score.append(f1_score)
 
     elif part == 3:
         # Preform PCA to extract the most important features and reduce dimension
@@ -78,12 +88,27 @@ def spike_sorter(params):#, args):
         pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
         pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]
         # Split training and test
-        train_d, test_d, train_lbl, test_lbl = train_test_split(pca, found_pk_lbl, test_size=test_percent)
+        # train_d, test_d, train_lbl, test_lbl = train_test_split(pca, found_pk_lbl, test_size=test_percent)
 
-        # Preform K Nearest Neighbours classification
-        pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on)
 
-    f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+        kf  = KFold(n_splits=k_splits)
+        kth_score = []
+        for train_k, test_k in kf.split(d_samp):
+
+            train_d, test_d = np.array(d_samp)[train_k], np.array(d_samp)[test_k]
+            train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
+            # Preform K Nearest Neighbours classification
+            pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on)
+
+            f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+
+            kth_score.append(f1_score)
+
+    avg_f1_score = sum(kth_score)/k_splits
+
+    print("*"*20)
+    print("Average Weighted F1 score (%) = "+ str(round(avg_f1_score*100, 2)))
+    # print("*"*20)
 
     ### PLOTTING 
     if plot_on:
@@ -99,9 +124,11 @@ def spike_sorter(params):#, args):
             plot.KNN(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
         plt.show()
     
-    print("Score = " + str(round(peak_loc_success * f1_score * 100, 2)))
+    print("*"*20)
+    print("Average Score = " + str(round(peak_loc_success * avg_f1_score * 100, 2)))
+    print("*"*20)
 
-    return peak_loc_success * f1_score
+    return peak_loc_success * avg_f1_score
 
 # TO DO 
 # PLOT LABELS< LEGENDS< ETC
