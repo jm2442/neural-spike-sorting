@@ -5,7 +5,7 @@ import math
 def objective(x):#, args):
     return -spsrt.spike_sorter(x)#, args)
 
-part = 2
+part = 3
 print_on = True
 params = {}
 # params = {
@@ -32,11 +32,11 @@ if part == 2:
     params["alpha"] = 0.0001
     params["learn_rate_type"] = 0.0
 
-    b6 = (1.0,3.999)
+    b6 = (1.0, 3.999)
     b7 = (22, 150)
-    b8 = (0.0,3.999)
-    b9 = (0.0001,0.1)
-    b10 = (0.0,2.999)
+    b8 = (0.0, 3.999)
+    b9 = (0.0001, 0.1)
+    b10 = (0.0, 2.999)
 
     bounds_class = [b6, b7, b8, b9, b10]
 
@@ -44,7 +44,7 @@ elif part == 3:
 
     params["num_neighbours"] = 21
 
-    b6 = (5, 50)
+    b6 = (5, 50.99999)
 
     bounds_class = [b6]
 
@@ -59,15 +59,16 @@ for key, value in params.items():
 
 # total_success = spsrt.spike_sorter(x0)#, args)
 
-print(params)
-result = opt.dual_annealing(objective, bounds=bounds) #, args=args # , x0=x0
-
-# result = opt.minimize(objective, x0, args=args ,method='BFGS', constraints=constraints, bounds=bounds, options={'disp':True})
-# result = opt.differential_evolution(objective, args=args, bounds=bounds, popsize=50)
-# result = opt.basinhopping(objective, args=args, x0=x0)#, bounds=bounds)
+# print(params)
+result = opt.dual_annealing(objective, bounds=bounds, maxiter=25) #, args=args # , x0=x0
 print(result)
 print("finished")
 for res in result.x:
     print(res)
+
+# result = opt.minimize(objective, x0, args=args ,method='BFGS', constraints=constraints, bounds=bounds, options={'disp':True})
+# result = opt.differential_evolution(objective, args=args, bounds=bounds, popsize=50)
+# result = opt.basinhopping(objective, args=args, x0=x0)#, bounds=bounds)
+
 
 

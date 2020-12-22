@@ -15,23 +15,22 @@ import performance_metrics as metrics
     
 def spike_sorter(params):#, args):
 
-    part = 2
-    print_on = False
+    part = 3
+    print_on = True
+    plot_on = False
+    print("-"*20)
     print(params)
 
-    low_cutoff = 46
-    high_cutoff = 3467
+    low_cutoff = 50
+    high_cutoff = 3500
     smooth_size = 17
     edo_thresh_factor = 13
     window_size = 22
 
     if part == 2:
-
         num_layers, num_neurons, act_function, alpha, learn_rate_type = params
-
     elif part == 3:
-
-        num_neighbors = params
+        num_neighbors = params[0]
 
     # Load corresponding dataset from .mat file provided
     mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
@@ -62,43 +61,47 @@ def spike_sorter(params):#, args):
 
     # Extract each spike as a sample window
     spike_samp_arr = align.spike_extractor(smth_d, idx_train, window_size)
-    d_samp = [x[0] for x in spike_samp_arr]
-
+    d_samp = spike_samp_arr#[x[0] for x in spike_samp_arr]
 
     test_percent = 0.25
 
     if part == 2:
 
         train_d, test_d, train_lbl, test_lbl = train_test_split(d_samp, found_pk_lbl, test_size=test_percent)
-        pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, num_layers, num_neurons, act_function, alpha, learn_rate_type)
+
+        pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on)
 
     elif part == 3:
         # Preform PCA to extract the most important features and reduce dimension
         pca_dim = 3
-        pca = feat_ex_reduce.dimension_reducer(d_samp, pca_dim)
-
+        d_samp_window = [x[0] for x in d_samp]
+        pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
+        pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]
         # Split training and test
-        train_d, test_d, train_lbl, test_lbl = train_test_split(pca[:,0:2], found_pk_lbl, test_size=test_percent)
+        train_d, test_d, train_lbl, test_lbl = train_test_split(pca, found_pk_lbl, test_size=test_percent)
 
         # Preform K Nearest Neighbours classification
-        pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, num_neighbors)
+        pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on)
 
-    score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+    f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
 
     ### PLOTTING 
-    plot_on = False
     if plot_on:
-        x_start = 0
-        x_end = 2
-        plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
-        plot.samples(d_samp, 100)
-        # plot.PCA(pca)
-        plot.KNN(test_d, pred_lbl, d_samp)
+        # x_start = 0
+        # x_end = 2
+        # plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
+        # plot.samples(d_samp, 100)
+        if part == 3:
+            # plot.PCA(pca)
+
+            no_lbl_test_data = [x[0] for x in test_d]
+            no_idx_pred_lbl = [x[0] for x in pred_lbl]
+            plot.KNN(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
         plt.show()
     
-    print("Final Score = " + str(round(peak_loc_success * score * 100, 2)))
+    print("Score = " + str(round(peak_loc_success * f1_score * 100, 2)))
 
-    return peak_loc_success #* score
+    return peak_loc_success * f1_score
 
 # TO DO 
 # PLOT LABELS< LEGENDS< ETC

@@ -1,3 +1,4 @@
+from sklearn import metrics
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -70,10 +71,10 @@ def KNN(test_data, prediction_label, data_samples):
     cluster_list=[1, 2, 3, 4]
     for cluster in cluster_list:
         cluster_list[cluster-1] = [data_samples[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
-
+    gogo = np.array(test_data)
     # Plot the 1st principal component aginst the 2nd and use the 3rd for color
     fig, ax = plt.subplots(1,2)
-    ax[0].scatter(test_data[:, 0], test_data[:, 1], c=prediction_label)
+    ax[0].scatter(gogo[:, 0], gogo[:, 1], c=prediction_label)
     ax[0].set_xlabel('1st principal component')
     ax[0].set_ylabel('2nd principal component')
     ax[0].set_title('Spike')
@@ -92,4 +93,8 @@ def KNN(test_data, prediction_label, data_samples):
     ax[1].set_ylabel('amplitude [uV]')
 
     fig.tight_layout()
+    plt.draw()
+
+def confusion_matrix(classifier, X_test, y_test):
+    metrics.plot_confusion_matrix(classifier, X_test, y_test)
     plt.draw()
