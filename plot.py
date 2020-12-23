@@ -46,8 +46,8 @@ def samples(data_samples, interval=1):
     fig, ax = plt.subplots()
     i = 0
     for wave in data_samples:
-        if i%interval == 0:
-            ax.plot(wave)
+        if i % interval == 0:
+            ax.plot(wave[0])
     i += 1
     fig.tight_layout()
     plt.draw()
@@ -70,16 +70,35 @@ def KNN(test_data, prediction_label, data_samples):
     # Sort each wave sample into its corresponding class type
     cluster_list=[1, 2, 3, 4]
     for cluster in cluster_list:
-        cluster_list[cluster-1] = [data_samples[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
+        temp = [data_samples[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
+
+        cluster_list[cluster-1] = temp
     gogo = np.array(test_data)
     # Plot the 1st principal component aginst the 2nd and use the 3rd for color
+
+    time = range(int(np.size(cluster_list[0][0])))
+
+    
+    fig, ax = plt.subplots(1,4)
+    j = 0
+    k = 0
+    for wave_cluster in cluster_list:
+        for wave in wave_cluster:
+            # if k % 20 == 0:
+            ax[j].plot(time, wave)
+            k += 1
+        j += 1
+
+    fig.tight_layout()
+    plt.draw()
+
+
     fig, ax = plt.subplots(1,2)
     ax[0].scatter(gogo[:, 0], gogo[:, 1], c=prediction_label)
     ax[0].set_xlabel('1st principal component')
     ax[0].set_ylabel('2nd principal component')
     ax[0].set_title('Spike')
 
-    time = range(int(np.size(cluster_list[0][0])))
     for i in range(4):
         clust_mean = np.array(cluster_list[i]).mean(axis=0)
         clust_std = np.array(cluster_list[i]).std(axis=0)
@@ -95,6 +114,50 @@ def KNN(test_data, prediction_label, data_samples):
     fig.tight_layout()
     plt.draw()
 
-def confusion_matrix(classifier, X_test, y_test):
-    metrics.plot_confusion_matrix(classifier, X_test, y_test)
+def MLP(test_data, prediction_label, data_samples):
+    # Sort each wave sample into its corresponding class type
+    cluster_list=[1, 2, 3, 4]
+    for cluster in cluster_list:
+        temp = [test_data[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
+
+        cluster_list[cluster-1] = temp
+        
+    # Plot the 1st principal component aginst the 2nd and use the 3rd for color
+
+    time = list(range(int(np.size(cluster_list[0][0]))))
+
+    
+    fig, ax = plt.subplots(1,4)
+    j = 0
+    k = 0
+    for wave_cluster in cluster_list:
+        for wave in wave_cluster:
+            # if k % 20 == 0:
+            ax[j].plot(time, wave)
+            k += 1
+        j += 1
+
+    fig.tight_layout()
     plt.draw()
+
+
+    fig, ax = plt.subplots(1,1)
+    for i in range(4):
+        clust_mean = np.array(cluster_list[i]).mean(axis=0)
+        clust_std = np.array(cluster_list[i]).std(axis=0)
+
+        ax.plot(time, clust_mean, label='Neuron {}'.format(i))
+        ax.fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
+
+    ax.set_title('average waveforms')
+    ax.legend()
+    ax.set_xlabel('time [ms]')
+    ax.set_ylabel('amplitude [uV]')
+
+    fig.tight_layout()
+    plt.draw()
+
+def confusion_matrix(classifier, X_test, y_test):
+    # metrics.plot_confusion_matrix(classifier, X_test, y_test)
+    # plt.draw()
+    pass

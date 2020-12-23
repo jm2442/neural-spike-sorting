@@ -1,4 +1,5 @@
 from scipy.signal import find_peaks
+from statistics import mean
 import numpy as np
 
 import performance_metrics as metrics
@@ -70,24 +71,52 @@ def peak_detector(filtered_data, energy_threshold=25):
     return peak_indices, energy_x, threshold, threshold2
 
 def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
+
     # difference = len(index_test) - len(index_train)
     all_indexes = []
     incorrect_indexes = []
 
-    index_train_compare=index_train[:]
+    index_test_compare = index_test[:]
+    index_train_compare = index_train[:]
+
+    offsets = []
+    for k in range(len(index_test_compare)):
+        diff = abs(index_test_compare[k] - index_train_compare[k])
+        if diff <= 50:
+            offsets.append(diff)
+        else:
+            break
+    
+    # avg_offset = int(round(sum(offsets)/k, 0)
+
     i = 0
-    for index in index_test:
+    # for index in index_test:
+    for y in range(len(index_test_compare)):
+
+        index = index_test_compare[y]
+        # if index > 54375:
+        #     print("hey")
         correct_flag = False
+
         for x in range(len(index_train_compare)):
-            if abs(index-index_train_compare[x]) <= 50:
+
+            ind_comp= index_train_compare[x]
+            diff = abs(index-ind_comp)
+
+            if diff <= 50:
                 correct_flag = True
+                offsets.append(diff)
+                k += 1
                 break
+
         if not correct_flag:
+            avg_offset = int(round(sum(offsets)/k, 0))
             incorrect_indexes.append([index, class_test[i]])
+            all_indexes.append([index+avg_offset, class_test[i],correct_flag])
         else:
             index_train_compare.pop(0)
+            all_indexes.append([ind_comp, class_test[i],correct_flag])
         
-        all_indexes.append([index, class_test[i],correct_flag])
         i += 1
 
     loc_succ_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)

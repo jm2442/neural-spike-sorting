@@ -17,20 +17,15 @@ def spike_sorter(params):#, args):
 
     part = 3
     print_on = True
-    plot_on = False
+    plot_on = True
     print("-"*20)
     print(params)
 
-    low_cutoff = 50
-    high_cutoff = 3500
-    smooth_size = 17
-    edo_thresh_factor = 13
-    window_size = 22
-
+    # Extract parameters for sorter depending on classification method chosen
     if part == 2:
-        num_layers, num_neurons, act_function, alpha, learn_rate_type = params
+        low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,  num_layers, num_neurons, act_function, alpha, learn_rate_type = params
     elif part == 3:
-        num_neighbors = params[0]
+        low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,num_neighbors = params#[0]
 
     # Load corresponding dataset from .mat file provided
     mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
@@ -56,72 +51,97 @@ def spike_sorter(params):#, args):
     # Compare against provided indexes to determine the accuracy of the peak detection
     all_peaks, peak_loc_success = spdt.peak_location_accuracy(idx_test, idx_train, class_test, print_on)
 
-    # Find the labels of the peaks that have been correctly identified
+    # Find the labels and indexes of the peaks that have been correctly identified
     found_pk_lbl = [x[1] for x in all_peaks if x[2]]
+    found_pk_idx = [x[0] for x in all_peaks if x[2]]
 
     # Extract each spike as a sample window
-    spike_samp_arr = align.spike_extractor(smth_d, idx_train, window_size)
+    spike_samp_arr = align.spike_extractor(smth_d, found_pk_idx, window_size)
     d_samp = spike_samp_arr#[x[0] for x in spike_samp_arr]
 
+    # Set number of k fold splits to account for the proportion of training to test data, 5 = 80/20, 4 = 75/25 etc.
     k_splits = 5
 
     if part == 2:
-
-        # train_d, test_d, train_lbl, test_lbl = train_test_split(d_samp, found_pk_lbl, test_size=test_percent)
-
+        
+        # Split the data by index of k iterations to preform k fold cross validation
         kf  = KFold(n_splits=k_splits)
         kth_score = []
         for train_k, test_k in kf.split(d_samp):
+
+            # Split training and test data
             train_d, test_d = np.array(d_samp)[train_k], np.array(d_samp)[test_k]
             train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
+
+
         
+            # Perform classification using a Multi-Layer Perceptron
             pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on)
 
+            # Compute the metrics of the classifcation and add to list of k number of scores
             f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+
+            # if plot_on:
+            #     no_lbl_test_data = [x[0] for x in test_d]
+            #     no_idx_pred_lbl = [x[0] for x in pred_lbl]
+            #     d_samp_window = [x[0] for x in d_samp]
+            #     plot.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
 
             kth_score.append(f1_score)
 
     elif part == 3:
+
         # Preform PCA to extract the most important features and reduce dimension
-        pca_dim = 3
+        pca_dim = 20
         d_samp_window = [x[0] for x in d_samp]
         pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
         pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]
-        # Split training and test
-        # train_d, test_d, train_lbl, test_lbl = train_test_split(pca, found_pk_lbl, test_size=test_percent)
 
-
+        # Split the data by index of k iterations to preform k fold cross validation
         kf  = KFold(n_splits=k_splits)
         kth_score = []
         for train_k, test_k in kf.split(d_samp):
 
-            train_d, test_d = np.array(d_samp)[train_k], np.array(d_samp)[test_k]
+            # Split training and test data
+            train_d, test_d = np.array(pca)[train_k], np.array(pca)[test_k]
             train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
-            # Preform K Nearest Neighbours classification
+
+            # Perform classification using K Nearest Neighbours
             pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on)
 
+            # Compute the metrics of the classifcation and add to list of k number of scores
             f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
 
+            # if plot_on:
+            #     no_lbl_test_data = [x[0] for x in test_d]
+            #     no_idx_pred_lbl = [x[0] for x in pred_lbl]
+            #     plot.KNN(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
             kth_score.append(f1_score)
 
+    # Avg the k number of scores using the mean of their values
     avg_f1_score = sum(kth_score)/k_splits
-
-    print("*"*20)
-    print("Average Weighted F1 score (%) = "+ str(round(avg_f1_score*100, 2)))
-    # print("*"*20)
+    if print_on:
+        print("*"*20)
+        print("Average Weighted F1 score (%) = "+ str(round(avg_f1_score*100, 2)))
+        # print("*"*20)
 
     ### PLOTTING 
     if plot_on:
-        # x_start = 0
-        # x_end = 2
-        # plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
+        x_start = 10
+        x_end = 12
+        plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
         # plot.samples(d_samp, 100)
-        if part == 3:
-            # plot.PCA(pca)
 
-            no_lbl_test_data = [x[0] for x in test_d]
-            no_idx_pred_lbl = [x[0] for x in pred_lbl]
-            plot.KNN(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
+        no_lbl_test_data = [x[0] for x in test_d]
+        no_idx_pred_lbl = [x[0] for x in pred_lbl]
+        d_samp_window = [x[0] for x in d_samp]
+        if part == 2:
+            # plot.PCA(pca)
+            plot.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
+        elif part == 3:
+            
+            plot.KNN(no_lbl_test_data, no_idx_pred_lbl, np.array(d_samp_window)[test_k])
+
         plt.show()
     
     print("*"*20)
@@ -133,3 +153,7 @@ def spike_sorter(params):#, args):
 # TO DO 
 # PLOT LABELS< LEGENDS< ETC
 # Offset from peak to rising edge
+# 50 threshold????
+# Bias and threshold of model
+# CONFUSION LOCATION
+# Configure code to run submission dataset
