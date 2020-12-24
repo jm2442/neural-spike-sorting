@@ -1,5 +1,6 @@
 from scipy.signal import butter, lfilter, savgol_filter
 from decimal import Decimal, ROUND_UP
+import numpy as np
 
 def bandpass(data, samp_freq, low=1, high=2000, order=2):
     nyq_freq = samp_freq/2
@@ -22,3 +23,14 @@ def smoothing(filtered_data, window_size=17):
     smoothed_data = savgol_filter(filtered_data, int(round(new_window_size,0)), 3)
 
     return smoothed_data
+
+def signal_processing(d, low_cutoff, high_cutoff, smooth_size):
+    # Set the sampling frequency that is given to us, convert frequency sample into cumulative time
+    samp_freq = 25000
+    time = list(np.linspace(0, len(d)*1/samp_freq, len(d)))
+
+    # Apply a bandpass and a Savitzky-golay filter to remove worst of the noise
+    filt_d  = bandpass(d, samp_freq, low_cutoff, high_cutoff)
+    smth_d = smoothing(filt_d, smooth_size)
+
+    return time, filt_d, smth_d
