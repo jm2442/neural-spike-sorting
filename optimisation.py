@@ -2,17 +2,20 @@ import scipy.optimize as opt
 import spike_sorting as spsrt
 import math
 
-def objective(x):#, args):
-    return -spsrt.spike_sorter(x)#, args)
+def objective(x, part, print_on, plot_on):
+    return -spsrt.spike_sorter(x, part, print_on, plot_on)
 
 part = 3
-# params = {}
-params = {#}
+print_on = False
+plot_on = False
+
+
+params = {
         "low_cutoff": 3.34,
         "high_cutoff": 9158.98,
         "smooth_size": 11,
         "edo_thresh_factor": 19.51,
-        "window_size": 30#24
+        "window_size": 60#30#24
 }
 
 b1 = (1, 50)
@@ -72,15 +75,15 @@ x0 = []
 for key, value in params.items(): 
     x0.append(value)
 
-# args = (part,)
+args = (part, print_on, plot_on)
 
-total_success = spsrt.spike_sorter(x0)#, args)
+# total_success = spsrt.spike_sorter(x0, args)
 
-# result = opt.dual_annealing(objective, bounds=bounds, maxiter=100) #, args=args # , x0=x0
-# print(result)
-# print("finished")
-# for res in result.x:
-#     print(res)
+result = opt.dual_annealing(objective, bounds=bounds, maxiter=10, args=args) # , x0=x0
+print(result)
+print("finished")
+for res in result.x:
+    print(res)
 
 # result = opt.minimize(objective, x0, args=args ,method='BFGS', constraints=constraints, bounds=bounds, options={'disp':True})
 # result = opt.differential_evolution(objective, args=args, bounds=bounds, popsize=50)

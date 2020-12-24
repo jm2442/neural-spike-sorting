@@ -6,6 +6,7 @@ def spike_extractor(filtered_data, peaks, window_size=64):
     single_sample_array = []
     # multiple_sample_array = []
     window_midpoint = int(window_size)//2
+    window_thirdpoint = int(window_size)//3
 
     for x in range(len(peaks)):
 
@@ -16,7 +17,7 @@ def spike_extractor(filtered_data, peaks, window_size=64):
         max_point  = np.where(filtered_data==max(window))
         aligned_max = max_point[0][0]
 
-        aligned_window = filtered_data[aligned_max-window_midpoint:aligned_max+window_midpoint+1]
+        aligned_window = filtered_data[aligned_max-window_thirdpoint:aligned_max+(2*window_thirdpoint)+1]
 
         if x+1 < len(peaks):
             if peaks[x-1] < current_peak-(window_midpoint*2) and peaks[x+1] > current_peak+(window_midpoint*2):

@@ -13,11 +13,11 @@ import classification as classifier
 import plot
 import performance_metrics as metrics
     
-def spike_sorter(params):#, args):
+def spike_sorter(params, part, print_on, plot_on):
 
-    part = 3
-    print_on = True
-    plot_on = True
+    # part = 3
+    # print_on = False
+    # plot_on = False
     print("-"*20)
     print(params)
 
@@ -79,7 +79,7 @@ def spike_sorter(params):#, args):
             pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on)
 
             # Compute the metrics of the classifcation and add to list of k number of scores
-            f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+            f1_score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
 
             # if plot_on:
             #     no_lbl_test_data = [x[0] for x in test_d]
@@ -92,7 +92,7 @@ def spike_sorter(params):#, args):
     elif part == 3:
 
         # Preform PCA to extract the most important features and reduce dimension
-        pca_dim = 20
+        pca_dim = 3
         d_samp_window = [x[0] for x in d_samp]
         pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
         pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]
@@ -110,7 +110,7 @@ def spike_sorter(params):#, args):
             pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on)
 
             # Compute the metrics of the classifcation and add to list of k number of scores
-            f1_score, spike_metrics = metrics.peak_classification(test_lbl, pred_lbl, print_on)
+            f1_score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
 
             # if plot_on:
             #     no_lbl_test_data = [x[0] for x in test_d]

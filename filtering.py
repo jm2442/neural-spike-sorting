@@ -1,5 +1,5 @@
 from scipy.signal import butter, lfilter, savgol_filter
-from decimal import *
+from decimal import Decimal, ROUND_UP
 
 def bandpass(data, samp_freq, low=1, high=2000, order=2):
     nyq_freq = samp_freq/2

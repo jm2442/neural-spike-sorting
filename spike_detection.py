@@ -86,16 +86,24 @@ def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
             offsets.append(diff)
         else:
             break
-    
+        
     # avg_offset = int(round(sum(offsets)/k, 0)
+    if len(index_train) > len(index_test):
+        num_occur = len(index_train_compare)
+    else:
+        num_occur = len(index_test_compare)
+
+
 
     i = 0
+    TP = 0
+    FN = 0
+    # FP = 0
     # for index in index_test:
     for y in range(len(index_test_compare)):
 
         index = index_test_compare[y]
-        # if index > 54375:
-        #     print("hey")
+
         correct_flag = False
 
         for x in range(len(index_train_compare)):
@@ -104,12 +112,19 @@ def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
             diff = abs(index-ind_comp)
 
             if diff <= 50:
+                # TRUE POSITIVE
+                TP += 1
+
                 correct_flag = True
                 offsets.append(diff)
                 k += 1
                 break
 
+
         if not correct_flag:
+            # FALSE NEGATIVE
+            # If you get here
+            FN += 1
             avg_offset = int(round(sum(offsets)/k, 0))
             incorrect_indexes.append([index, class_test[i]])
             all_indexes.append([index+avg_offset, class_test[i],correct_flag])
@@ -119,8 +134,24 @@ def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
         
         i += 1
 
-    loc_succ_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)
+    # loc_succ_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)
 
-    metrics.peak_location(incorrect_indexes, loc_succ_rate, print_on)
 
-    return all_indexes, loc_succ_rate
+    # FALSE POSITIVE
+    # for anything left in index train compare
+    FP = len(index_train_compare)
+
+    # TRUE NEGATIVE
+    # All other mins total guesses, calculated for completeness sake
+    # TN = num_occur - TP - FP - FN
+    # if TN < 0 and len(index_train) < len(index_test): TN = 0
+
+    precision = TP / float(TP + FP)
+    recall = TP/ float(TP + FN)
+
+    F1_score = 2*(recall * precision)/ (recall + precision)
+
+
+    metrics.peak_location(incorrect_indexes, F1_score, print_on)
+
+    return all_indexes, F1_score

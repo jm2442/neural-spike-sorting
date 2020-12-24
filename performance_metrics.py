@@ -11,7 +11,7 @@ def peak_location(incorrect_indexes, success_rate, print_on=True):
             i += 1
         
         print("*"*20)
-        print("Peak Location Accuracy (%) = " + str(round(success_rate*100, 2)))
+        print("Peak Location F1 Score (%) = " + str(round(success_rate*100, 2)))
         # print("*"*20)
 
 
@@ -30,7 +30,7 @@ def peak_classification(test_label, prediction_label, print_on=True):
     weighted_f1_score = metrics.f1_score(test_label, pred_label, average="weighted")#report['weighted avg']['f1-score']
     # print(weighted_f1_score)
 
-    spike_metrics = []
+    # spike_metrics = []
     # for confuse in ind_confusion:
     #     TP = confuse[1,1]
     #     TN = confuse[0,0]
@@ -67,5 +67,5 @@ def peak_classification(test_label, prediction_label, print_on=True):
     #     print("Weighted F1 score (%) = "+ str(round(weighted_f1_score*100, 2)))
     #     print("*"*20)
 
-    return weighted_f1_score, spike_metrics
+    return weighted_f1_score#, spike_metrics
 

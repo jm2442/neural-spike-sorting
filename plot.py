@@ -68,8 +68,8 @@ def PCA(pca):
 def KNN(test_data, prediction_label, data_samples):
 
     # Sort each wave sample into its corresponding class type
-    cluster_list=[1, 2, 3, 4]
-    for cluster in cluster_list:
+    cluster_list=[]
+    for cluster in [1,2,3,4]:
         temp = [data_samples[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
 
         cluster_list[cluster-1] = temp
@@ -116,8 +116,8 @@ def KNN(test_data, prediction_label, data_samples):
 
 def MLP(test_data, prediction_label, data_samples):
     # Sort each wave sample into its corresponding class type
-    cluster_list=[1, 2, 3, 4]
-    for cluster in cluster_list:
+    cluster_list=[]
+    for cluster in [1,2,3,4]:
         temp = [test_data[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
 
         cluster_list[cluster-1] = temp
