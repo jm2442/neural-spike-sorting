@@ -2,7 +2,7 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 import numpy as np
 
-def filter_and_detection(x_start, x_end, time, data, time_test, index_train, index_test, filtered_data, smoothed_data, smoothed_threshold, edo_data, edo_threshold):
+def filter_and_detection(x_start, x_end, time, data, time_test, index_train, index_test, filtered_data, smoothed_data, smoothed_threshold, edo_data, edo_threshold, training=True):
 
 
     peak_times = [time[int(peak)] for peak in index_train]
@@ -15,7 +15,8 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     ax[0].set_xlabel("Seconds")
     ax[0].set_ylabel("Amplitude (mV)", color=color)
     ax[0].plot(time, data, color)
-    ax[0].scatter(time_test, data[index_test], color='black', marker='x', linewidths=1)
+    if training:
+        ax[0].scatter(time_test, data[index_test], color='black', marker='x', linewidths=1)
     ax[0].tick_params(axis='y', labelcolor=color)
     ax[0].set_xlim([x_start,x_end])
 
@@ -68,7 +69,7 @@ def PCA(pca):
 def KNN(test_data, prediction_label, data_samples):
 
     # Sort each wave sample into its corresponding class type
-    cluster_list=[]
+    cluster_list=[0]*4
     for cluster in [1,2,3,4]:
         temp = [data_samples[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
 
@@ -116,7 +117,7 @@ def KNN(test_data, prediction_label, data_samples):
 
 def MLP(test_data, prediction_label, data_samples):
     # Sort each wave sample into its corresponding class type
-    cluster_list=[]
+    cluster_list=[0]*4
     for cluster in [1,2,3,4]:
         temp = [test_data[x] for x in range(len(test_data)) if prediction_label[x] == cluster]
 

@@ -9,9 +9,9 @@ def parameters(part):
     params = {
             "low_cutoff": 3.34,
             "high_cutoff": 9158.98,
-            "smooth_size": 11,
-            "edo_thresh_factor": 19.51,
-            "window_size": 24
+            "smooth_size": 13,
+            "edo_thresh_factor": 11,
+            "window_size": 60
     }
 
     if part == 2:
@@ -78,7 +78,7 @@ def bounds(part):
 
 if __name__ == "__main__":
     
-    part = 2
+    part = 3
     print_on = False
     plot_on = False
 
@@ -93,4 +93,4 @@ if __name__ == "__main__":
         for res in result.x:
             print(res)
     else:
-        total_success = spsrt.spike_sorter(parameters(part), part, print_on, plot_on, True)
+        total_success = spsrt.spike_sorter(parameters(part), part, print_on=True, plot_on=True, evaluate=True)

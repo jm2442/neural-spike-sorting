@@ -166,9 +166,9 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
 
             MLP = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on, evaluate=False)
 
-            filename = '../neural-spike-sorting/models/MLP.pkl'
-            with open(filename, 'wb') as f:
-                pickle.dump(MLP, f)
+            # filename = '../neural-spike-sorting/models/MLP.pkl'
+            # with open(filename, 'wb') as f:
+            #     pickle.dump(MLP, f)
 
             return MLP
 
@@ -187,9 +187,9 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
             # Perform classification using K Nearest Neighbours
             KNN = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on, evaluate=False)
             
-            filename = '../neural-spike-sorting/models/KNN.pkl'
-            with open(filename, 'wb') as f:
-                pickle.dump(KNN, f)
+            # filename = '../neural-spike-sorting/models/KNN.pkl'
+            # with open(filename, 'wb') as f:
+            #     pickle.dump(KNN, f)
 
             return KNN
 

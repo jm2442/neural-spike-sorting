@@ -11,14 +11,14 @@ def spike_extractor(filtered_data, peaks, window_size=64):
     for x in range(len(peaks)):
 
         current_peak = peaks[x]
-        if current_peak - 5 < 0: 
+        if current_peak - window_thirdpoint < 0: 
             left = 0
-            left_zero_add = 5 - current_peak
+            left_zero_add = window_thirdpoint - current_peak
         else:
             left  = current_peak-5
             left_zero_add = 0
 
-        if current_peak + 5 > len(filtered_data): 
+        if current_peak + (2*window_thirdpoint) > len(filtered_data): 
             right = len(filtered_data)-1
             right_zero_add = len(filtered_data) - current_peak
         else:
@@ -56,10 +56,10 @@ def spike_extractor(filtered_data, peaks, window_size=64):
             if left_zero_add > 1:
                 left_zero = (window_size - len(aligned_window))*[0]
                 left_zero.extend(aligned_window)
-                aligned_window = left_zero[:]
+                aligned_window = np.array(left_zero[:])
             elif right_zero_add > 1:
                 right_zero = (window_size - len(aligned_window))*[0]
-                aligned_window.extend(right_zero)
+                aligned_window = np.hstack([aligned_window, right_zero])
 
 
         if x+1 < len(peaks):
