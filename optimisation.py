@@ -11,7 +11,7 @@ def parameters(part):
             "high_cutoff": 9158.98,
             "smooth_size": 13,
             "edo_thresh_factor": 11,
-            "window_size": 60
+            "window_size": 24
     }
 
     if part == 2:

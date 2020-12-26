@@ -82,11 +82,9 @@ xend = 2.5
 idx_train = list(peak_idxes[0])
 plot.filter_and_detection(xstart, xend, time, d, time_test=[], index_train=idx_train, index_test=[], filtered_data=filt_d, smoothed_data=smth_d, smoothed_threshold=smth_thresh, edo_data=edo_d, edo_threshold=edo_thresh, training=False)
 
-print(len(predictions))
+plot.spike_train(xstart, xend, time, d, predictions)
 
-# no_lbl_test_data = [x[0] for x in test_d]
-# no_idx_pred_lbl = [x[0] for x in pred_lbl]
-# d_samp_window = [x[0] for x in d_samp]
+print(len(predictions))
 
 if clf_type == 2:
     plot.MLP(input_samples, pred_lbl, d_samp_window)

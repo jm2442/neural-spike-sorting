@@ -198,4 +198,6 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
 # Offset from peak to rising edge
 # 50 threshold????
 # Bias and threshold of model
-# Configure code to run submission dataset
+# label neurons correctly
+# Spike Train
+# Confusion Matrix for location
