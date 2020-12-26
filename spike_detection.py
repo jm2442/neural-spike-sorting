@@ -1,14 +1,16 @@
+# Import libraries required
 from scipy.signal import find_peaks
 from statistics import mean
 import numpy as np
-
+# Import modules for functions required
 import performance_metrics as metrics
 
-
 def threshold_finder(filtered_data, thresh_factor=5):
+    # Returns the threshold to be used that is calcuated using the Median Absolution Deviation multiplied by an input threshold factor
     scaled_abs_signal = [abs(x)/0.6745 for x in filtered_data]
     sigma_n = np.median(scaled_abs_signal)
     thr = thresh_factor * sigma_n
+
     return thr
 
 def hilbert_transform(x):
@@ -61,97 +63,20 @@ def envel_deriv_operator(x):
     return x_edo[0:initial_xlen]
 
 
-def peak_detector(filtered_data, energy_threshold=25):
-    energy_x = envel_deriv_operator(filtered_data)
-    threshold = threshold_finder(energy_x, energy_threshold)
+def peak_detector(filtered_data, edo_threshold_factor=19):
+    # Returns the location of peaks detected above a threshold calculated using the MAD as well as other thresholds and signals for plotting
+
+    # Use the Non-linear Energy Operator to produce a signal which allows for easier identification of true peaks over noise
+    edo_data = envel_deriv_operator(filtered_data)
+
+    # Calculate the appropriate threshold using a changeable factor
+    edo_threshold = threshold_finder(edo_data, edo_threshold_factor)
+
+    # Determine the location of peaks that are greater than the calculate threshold
+    peak_indices = find_peaks(edo_data, edo_threshold, prominence=1)
+
+    # Determine the threshold for the 5 MAD which is seen in literature
     thresh_factor = 5
-    threshold2 = threshold_finder(filtered_data,thresh_factor)
-    peak_indices = find_peaks(energy_x, threshold, prominence=1)
+    threshold = threshold_finder(filtered_data, thresh_factor)
 
-    return peak_indices, energy_x, threshold, threshold2
-
-def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
-
-    # difference = len(index_test) - len(index_train)
-    all_indexes = []
-    incorrect_indexes = []
-
-    index_test_compare = index_test[:]
-    index_train_compare = index_train[:]
-
-    offsets = []
-    for k in range(len(index_test_compare)):
-        diff = abs(index_test_compare[k] - index_train_compare[k])
-        if diff <= 50:
-            offsets.append(diff)
-        else:
-            break
-        
-    # avg_offset = int(round(sum(offsets)/k, 0)
-    if len(index_train) > len(index_test):
-        num_occur = len(index_train_compare)
-    else:
-        num_occur = len(index_test_compare)
-
-
-
-    i = 0
-    TP = 0
-    FN = 0
-    # FP = 0
-    # for index in index_test:
-    for y in range(len(index_test_compare)):
-
-        index = index_test_compare[y]
-
-        correct_flag = False
-
-        for x in range(len(index_train_compare)):
-
-            ind_comp= index_train_compare[x]
-            diff = abs(index-ind_comp)
-
-            if diff <= 50:
-                # TRUE POSITIVE
-                TP += 1
-
-                correct_flag = True
-                offsets.append(diff)
-                k += 1
-                break
-
-
-        if not correct_flag:
-            # FALSE NEGATIVE
-            # If you get here
-            FN += 1
-            avg_offset = int(round(sum(offsets)/k, 0))
-            incorrect_indexes.append([index, class_test[i]])
-            all_indexes.append([index+avg_offset, class_test[i],correct_flag])
-        else:
-            index_train_compare.pop(0)
-            all_indexes.append([ind_comp, class_test[i],correct_flag])
-        
-        i += 1
-
-    # loc_succ_rate = (len(index_test) - len(incorrect_indexes))/len(index_test)
-
-
-    # FALSE POSITIVE
-    # for anything left in index train compare
-    FP = len(index_train_compare)
-
-    # TRUE NEGATIVE
-    # All other mins total guesses, calculated for completeness sake
-    # TN = num_occur - TP - FP - FN
-    # if TN < 0 and len(index_train) < len(index_test): TN = 0
-
-    precision = TP / float(TP + FP)
-    recall = TP/ float(TP + FN)
-
-    F1_score = 2*(recall * precision)/ (recall + precision)
-
-
-    metrics.peak_location(incorrect_indexes, F1_score, print_on)
-
-    return all_indexes, F1_score
+    return peak_indices, edo_data, edo_threshold, threshold
