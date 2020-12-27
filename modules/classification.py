@@ -4,7 +4,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 
 # Import modules for functions required
-import plot
+from modules import plot
 
 def NeuralNet(train_data, train_label, test_data, test_label, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on=False, evaluate=True):
     # Returns either the predictions from a trained multi-layer perceptron model or the trained model itself

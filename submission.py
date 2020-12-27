@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 # Import modules for functions required
 import optimisation as opt
 import training as spsrt
-import filtering as filt
-import spike_detection as spdt
-import alignment as align
-import feature_extract_reduce as feat_ex_reduce
-import plot
+from modules import filtering as filt
+from modules import spike_detection as spdt
+from modules import alignment as align
+from modules import feature_extract_reduce as feat_ex_reduce
+from modules import plot
 
 # Set the Classifier of choice. 2 (MLP) or 3 (KNN)
 clf_type = 3
@@ -66,6 +66,9 @@ elif clf_type == 3:
     pca_dim = 3
     input_samples = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
     filestring = 'KNN'
+
+print('-'*10)
+print("Model ready, running submission dataset")
 
 # Using the model trained on the training dataset, predict the labels of the spikes
 pred_lbl = trained_clf.predict(input_samples)

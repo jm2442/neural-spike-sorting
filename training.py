@@ -7,13 +7,13 @@ import sklearn as sk
 import math
 import pickle
 # Import modules for functions required
-import filtering as filt
-import spike_detection as spdt
-import alignment as align
-import feature_extract_reduce as feat_ex_reduce
-import classification as classifier
-import plot
-import performance_metrics as metrics
+from modules import filtering as filt
+from modules import spike_detection as spdt
+from modules import alignment as align
+from modules import feature_extract_reduce as feat_ex_reduce
+from modules import classification as classifier
+from modules import plot
+from modules import performance_metrics as metrics
     
 def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
     # Returns an evaluate score on a trained model's performance or the trained model itself
@@ -102,10 +102,13 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
                 kth_score.append(f1_score)
 
         # Avg the k number of scores using the mean of their values
-        avg_f1_score = sum(kth_score)/k_splits
+        mean_f1_score = np.mean(kth_score)
+        std_f1_score = np.std(kth_score)
         if print_on:
             print("*"*20)
-            print("Average Weighted F1 score (%) = "+ str(round(avg_f1_score*100, 2)))
+            print("Mean Weighted F1 score (%) = "+ str(round(mean_f1_score*100, 2)))
+            print("Model Bias = "+ str(round((1-mean_f1_score), 2)))
+            print("Model Variance = "+ str(round(std_f1_score, 2)))
 
         ##### PLOTTING 
         if plot_on:
@@ -128,10 +131,10 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
             plt.show()
         
         print("*"*20)
-        print("Average Score = " + str(round(peak_loc_success * avg_f1_score * 100, 2)))
+        print("Average Score = " + str(round(peak_loc_success * mean_f1_score * 100, 2)))
         print("*"*20)
 
-        return peak_loc_success * avg_f1_score
+        return peak_loc_success * mean_f1_score
 
     else:
 
@@ -173,10 +176,5 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
 
 # TO DO 
 # PLOT LABELS< LEGENDS< ETC
-# Offset from peak to rising edge
-# 50 threshold????
-# Bias and threshold of model
 # label neurons correctly
-# Spike Train
-# Confusion Matrix for location
-# Performance metrics for the peak location
+# READ ME

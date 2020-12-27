@@ -14,8 +14,8 @@ def parameters(clf_type):
     params = {
             "low_cutoff": 10,#3.34,
             "high_cutoff": 5000,#9158.98,
-            "smooth_size": 13,
-            "edo_thresh_factor": 11,
+            "smooth_size": 21,
+            "edo_thresh_factor": 10.5,
             "window_size": 24
     }
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     args = (clf_type, print_on, plot_on, evaluate)
 
     # Toggle between running the optimiser or evaluating the training only once
-    optimizer = True
+    optimizer = False
 
     if optimizer:
         # Run the optimiser for a maximum of 25 iterations for time considerations

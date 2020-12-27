@@ -3,7 +3,7 @@ from scipy.signal import find_peaks
 from statistics import mean
 import numpy as np
 # Import modules for functions required
-import performance_metrics as metrics
+from modules import performance_metrics as metrics
 
 def threshold_finder(filtered_data, thresh_factor=5):
     # Returns the threshold to be used that is calcuated using the Median Absolution Deviation multiplied by an input threshold factor
