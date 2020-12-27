@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 # Import modules for functions required
 import optimisation as opt
-import training as spsrt
+from modules import model_builder as spsrt
 from modules import filtering as filt
 from modules import spike_detection as spdt
 from modules import alignment as align

@@ -1,6 +1,6 @@
 # Import libraries required
 import scipy.optimize as opt 
-import training as spsrt
+from modules import model_builder as spsrt
 import math
 
 def objective(x, clf_type, print_on, plot_on, evaluate):
@@ -95,9 +95,9 @@ if __name__ == "__main__":
     args = (clf_type, print_on, plot_on, evaluate)
 
     # Toggle between running the optimiser or evaluating the training only once
-    optimizer = False
+    optimiser = False
 
-    if optimizer:
+    if optimiser:
         # Run the optimiser for a maximum of 25 iterations for time considerations
         result = opt.dual_annealing(objective, bounds=bounds(clf_type), maxiter=25, args=args) 
         print(result)
