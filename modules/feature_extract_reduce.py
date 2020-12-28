@@ -8,6 +8,9 @@ def dimension_reducer(data_samples, dimensions=3):
     # Apply min-max scaling
     scaler = sk.preprocessing.MinMaxScaler()
     scaled_data_samples = scaler.fit_transform(data_samples)
+    # scaled_data_samples = []
+    # for data in data_samples:
+    #     scaled_data_samples.append(scaler.fit_transform(data))
 
     # Perform Principal Component Analysis
     pc_analysis = PCA(n_components=dimensions)

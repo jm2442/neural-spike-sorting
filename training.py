@@ -1,6 +1,6 @@
 # Import libraries required
 import scipy.optimize as opt 
-from modules import model_builder as spsrt
+from modules import spike_sorter as spsrt
 import math
 
 def objective(x, clf_type, print_on, plot_on, evaluate):
@@ -16,7 +16,7 @@ def parameters(clf_type):
             "high_cutoff": 5000,#9158.98,
             "smooth_size": 21,
             "edo_thresh_factor": 10.5,
-            "window_size": 24
+            "window_size": 64
     }
 
     if clf_type == 2:

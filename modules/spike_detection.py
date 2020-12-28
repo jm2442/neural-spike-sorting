@@ -62,7 +62,6 @@ def envel_deriv_operator(x):
 
     return x_edo[0:initial_xlen]
 
-
 def peak_detector(filtered_data, edo_threshold_factor=19):
     # Returns the location of peaks detected above a threshold calculated using the MAD as well as other thresholds and signals for plotting
 
