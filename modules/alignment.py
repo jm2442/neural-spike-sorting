@@ -65,6 +65,14 @@ def spike_extractor(filtered_data, peaks, window_size):
             elif right_zero_add > 1:
                 right_zero = (window_size - len(aligned_window))*[0]
                 aligned_window = np.hstack([aligned_window, right_zero])
+            else:
+                zero_add = window_size - len(aligned_window)
+                while zero_add > 0:
+                    if zero_add % 2 == 0:
+                        aligned_window = np.hstack([[0], aligned_window])
+                    else:
+                        aligned_window = np.hstack([aligned_window, [0]])
+                    zero_add -= 1
 
         # Add the window the list of spike samples as well as the spikes location
         single_sample_array.append([aligned_window, peaks[x]])
