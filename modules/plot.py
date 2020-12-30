@@ -57,7 +57,7 @@ def samples(data_samples, interval=1):
     i = 0
     for wave in data_samples:
         if i % interval == 0:
-            ax.plot(wave[0])
+            ax.plot(wave, linewidth= 0.5, color='k', alpha =0.2)
     i += 1
     fig.tight_layout()
     plt.draw()
@@ -92,9 +92,11 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
     for wave_cluster in cluster_list:
         for wave in wave_cluster:
             if k % interval == 0:
-                ax[j].plot(time, wave)
+                ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
             k += 1
+        ax[j].set_ylim([-2,12])
         j += 1
+    
 
     fig.tight_layout()
     plt.draw()
@@ -140,8 +142,9 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
     for wave_cluster in cluster_list:
         for wave in wave_cluster:
             if k % interval == 0:
-                ax[j].plot(time, wave)
+                ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
             k += 1
+        ax[j].set_ylim([-2,12])
         j += 1
 
     fig.tight_layout()
@@ -198,6 +201,9 @@ def spike_train(x_start, x_end, time, data, pred):
     ax.tick_params(axis='y', labelcolor=color)
     ax.set_xlim([x_start,x_end])
 
+    # Calcute number of individual neurons
+    spike_train_lens = [len(x[0]) for x in spike_trains]
+
     # Plot the classifier's predicted spikes
     points=['black','blue','green','purple']
     i = 0
@@ -209,3 +215,5 @@ def spike_train(x_start, x_end, time, data, pred):
 
     fig.tight_layout()
     plt.draw()
+
+    return spike_train_lens

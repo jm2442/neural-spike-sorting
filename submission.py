@@ -63,7 +63,7 @@ if clf_type == 2:
     input_samples = d_samp_window[:]
     filestring = 'MLP'
 elif clf_type == 3:
-    pca_dim = 3
+    pca_dim = trained_clf.n_features_in_
     input_samples = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
     filestring = 'KNN'
 
@@ -94,10 +94,15 @@ if plot_on:
     plot.filter_and_detection(xstart, xend, time, d, time_test=[], index_train=idx_train, index_test=[], filtered_data=filt_d, smoothed_data=smth_d, smoothed_threshold=smth_thresh, edo_data=edo_d, edo_threshold=edo_thresh, training=False)
 
     # Plot the output spike train
-    plot.spike_train(xstart, xend, time, d, predictions)
+    num_spike = plot.spike_train(xstart, xend, time, d, predictions)
 
     # Print number of peaks
-    print("Number of peaks found: " + str(len(predictions)))
+    print("Number of 1st neuron: " + str(num_spike[0]))
+    print("Number of 2nd neuron: " + str(num_spike[1]))
+    print("Number of 3rd neuron: " + str(num_spike[2]))
+    print("Number of 4th neuron: " + str(num_spike[3]))
+
+    print("Total number of peaks found: " + str(len(predictions)))
 
     # Plot the average waveform for each of the classified neurons
     if clf_type == 2:
