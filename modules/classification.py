@@ -55,8 +55,11 @@ def KNearNeighbor(train_data, train_label, test_data, test_label, neighbors=20, 
     train_X = [x[0] for x in train_data]
     train_Y = train_label[:]
 
+    weight_func = 1
+    weights = ['uniform', 'distance']
+
     # Build the model with the chosen parameters
-    KNN = KNeighborsClassifier(n_neighbors=int(neighbors))
+    KNN = KNeighborsClassifier(n_neighbors=int(neighbors), weights=weights[int(weight_func)])
 
     # Fit the model with the training data
     KNN.fit(train_X, train_Y)

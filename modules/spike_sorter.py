@@ -79,7 +79,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
         elif clf_type == 3:
 
             # Preform PCA to extract the most important features and reduce dimension
-            pca_dim = 3
+            pca_dim = 16
             d_samp_window = [x[0] for x in d_samp]
             pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
             pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]
@@ -155,7 +155,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
 
         elif clf_type == 3:
             # Preform PCA to extract the most important features and reduce dimension
-            pca_dim = 3
+            pca_dim = 16
             d_samp_window = [x[0] for x in d_samp]
             pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
             pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]

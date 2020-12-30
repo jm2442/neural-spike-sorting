@@ -12,11 +12,11 @@ def parameters(clf_type):
 
     # Signal processing parameters common to both classifier types
     params = {
-            "low_cutoff": 10,#3.34,
-            "high_cutoff": 5000,#9158.98,
-            "smooth_size": 21,
-            "edo_thresh_factor": 10.5,
-            "window_size": 64
+            "low_cutoff": 10,#3.34,10
+            "high_cutoff": 8000,#9158.98,8000
+            "smooth_size": 21,#
+            "edo_thresh_factor": 20,#20training/10testing
+            "window_size": 90#64 #100
     }
 
     if clf_type == 2:
@@ -31,6 +31,10 @@ def parameters(clf_type):
         # "act_function": 3.0
         # "alpha": 0.0001
         # "learn_rate_type": 0.0
+        # learning rate = 0.01
+        # hidden layer = 10
+        # reLU
+        # maxIter = 100
 
         params["num_layers"] = 1.0
         params["num_neurons"] = 100.0
@@ -45,9 +49,13 @@ def parameters(clf_type):
         # "smooth_size": 11 15
         # "edo_thresh_factor": 19.51    17.52
         # "window_size": 24 41
-        # "num_neighbours": 5   6
+        # "num_neighbours": 5   #7
+        # Euclidean
+        # weight = distance
 
-        params["num_neighbours"] = 5
+        ### PCA= 16
+
+        params["num_neighbours"] = 7
 
     # Output parameters as list to pass to optimiser
     parameters = []
@@ -88,7 +96,7 @@ def bounds(clf_type):
 if __name__ == "__main__":
     
     # Set the fixed arguments which can be passed to the function
-    clf_type = 2
+    clf_type = 3
     print_on = False
     plot_on = False
     evaluate = True
@@ -96,6 +104,7 @@ if __name__ == "__main__":
 
     # Toggle between running the optimiser or evaluating the training only once
     optimiser = False
+
 
     if optimiser:
         # Run the optimiser for a maximum of 25 iterations for time considerations
