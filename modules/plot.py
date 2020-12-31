@@ -15,12 +15,9 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     # Plot Original Wave
     color = 'tab:red'
     ax[0].set_title("Signal Processing & Peak Detection")
-    # ax[0].set_xlabel("Seconds")
-    # ax[0].set_ylabel("Amplitude (mV)")
     ax[0].plot(time, data, color, label='Original Signal')
     if training:
         ax[0].scatter(time_test, data[index_test], color='black', marker='x', linewidths=1)
-    # ax[0].tick_params(axis='y', labelcolor=color)
     ax[0].set_xlim([x_start,x_end])
     # Plot Bandpass Output
     color = 'tab:blue'
@@ -33,9 +30,6 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     ax[1].plot(time, filtered_data, color, label='Bandpass Filtered Signal')
     # Plot Savitzky-Golay Filter Output
     color = 'tab:orange'
-    # ax[1].set_xlabel("Seconds")
-    # ax[1].set_ylabel("Amplitude (mV)")
-    # ax[1].tick_params(axis='y', labelcolor=color)
     ax[1].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
     ax[1].set_xlim([x_start,x_end])
     ax[1].get_xaxis().set_visible(False)
@@ -43,11 +37,7 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
 
     # Plot Savitzky-Golay Filter Output
     color = 'tab:orange'
-    # ax[2].set_xlabel("Seconds")
-    # ax[2].set_ylabel("Amplitude (mV)")
-    # ax[2].tick_params(axis='y', labelcolor=color)
     ax[2].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered    Signal')
-    # ax[2].plot([0,58], [smoothed_threshold, smoothed_threshold], color='purple', label='5 * Est. std of Sav-Gol Noise')
     # Plot EDO Output
     color = 'tab:green'
     ax[2].plot(time, edo_data, color=color, label='EDO of Signal')
@@ -60,8 +50,6 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     # Plot Savitzky-Golay Filter Output
     color = 'tab:orange'
     ax[3].set_xlabel("Seconds")
-    # ax[3].set_ylabel("Amplitude (mV)")
-    # ax[3].tick_params(axis='y', labelcolor=color)
     ax[3].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
     # Plot detected peaks
     ax[3].scatter(peak_times, peak_data, color='black', marker='x', linewidths=1, label='Detected Spikes')
@@ -73,16 +61,41 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     plt.draw()
 
 def samples(data_samples, interval=1):
-    # Plots the extract spike samples at a set interval
 
-    fig, ax = plt.subplots()
-    i = 0
-    for wave in data_samples:
-        if i % interval == 0:
-            ax.plot(wave[0], linewidth= 0.5, color='k', alpha =0.2)
-    i += 1
+    # Sort each wave sample into its corresponding class type
+    cluster_list=[0]*4
+    for cluster in [1,2,3,4]:
+        cluster_list[cluster-1] =  [data_samples[x][0] for x in range(len(data_samples)) if data_samples[x][1] == cluster]
+
+    # Plot the samples of each cluster at a set interval
+    fig, ax = plt.subplots(1,4)
+    j = 0
+    k = 0
+    for wave_cluster in cluster_list:
+        for wave in wave_cluster:
+            if k % interval == 0:
+                ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
+                ax[j].set_xlabel('Spike '+ str(j+1))
+            k += 1
+        ax[j].set_ylim([-2,12])
+        j += 1
+    ax[0].set_ylabel('Amplitude (mV)')
+    fig.suptitle("Training Data Provided Labels")
+    
     fig.tight_layout()
     plt.draw()
+
+    # # Plots the extract spike samples at a set interval
+    # fig, ax = plt.subplots()
+    # i = 0
+    # for wave in data_samples:
+    #     if i % interval == 0:
+    #         ax.plot(wave[0], linewidth= 0.5, color='k', alpha =0.2)
+    # i += 1
+    # ax.set_ylabel("Amplitude (mV)")
+    # ax.set_title("Extracted Spike Samples")
+    # fig.tight_layout()
+    # plt.draw()
 
 def PCA(pca):
 
@@ -120,6 +133,7 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
         ax[j].set_ylim([-2,12])
         j += 1
     ax[0].set_ylabel('Amplitude (mV)')
+    fig.suptitle("Predicted Neurons MLP")
     
     fig.tight_layout()
     plt.draw()
@@ -175,6 +189,7 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         ax[j].set_ylim([-2,12])
         j += 1
     ax[0].set_ylabel('Amplitude (mV)')
+    fig.suptitle("Predicted Neurons MLP")
 
     fig.tight_layout()
     plt.draw()
@@ -188,10 +203,10 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         ax.plot(time, clust_mean, label='Spike {}'.format(i))
         ax.fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
 
-    ax.set_title('average waveforms')
+    ax.set_title('Average Waveforms')
     ax.legend()
-    ax.set_xlabel('time [ms]')
-    ax.set_ylabel('amplitude [uV]')
+    ax.set_xlabel('Sample Point')
+    ax.set_ylabel('Amplitude (mV)')
 
     fig.tight_layout()
     plt.draw()

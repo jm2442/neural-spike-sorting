@@ -6,7 +6,7 @@ import numpy as np
 from modules import performance_metrics as metrics
 
 def threshold_finder(filtered_data, thresh_factor=5):
-    # Returns the threshold to be used that is calcuated using the Median Absolution Deviation multiplied by an input threshold factor
+    # Returns the threshold to be used that is calcuated using the estimate of the noise's std multiplied by an input threshold factor
     scaled_abs_signal = [abs(x)/0.6745 for x in filtered_data]
     sigma_n = np.median(scaled_abs_signal)
     thr = thresh_factor * sigma_n
@@ -63,7 +63,7 @@ def envel_deriv_operator(x):
     return x_edo[0:initial_xlen]
 
 def peak_detector(filtered_data, edo_threshold_factor=19):
-    # Returns the location of peaks detected above a threshold calculated using the MAD as well as other thresholds and signals for plotting
+    # Returns the location of peaks detected above a threshold calculated using the std estimate as well as other thresholds and signals for plotting
 
     # Use the Non-linear Energy Operator to produce a signal which allows for easier identification of true peaks over noise
     edo_data = envel_deriv_operator(filtered_data)
@@ -74,7 +74,7 @@ def peak_detector(filtered_data, edo_threshold_factor=19):
     # Determine the location of peaks that are greater than the calculate threshold
     peak_indices = find_peaks(edo_data, edo_threshold, prominence=1)
 
-    # Determine the threshold for the 5 MAD which is seen in literature
+    # Determine the threshold for the 5 std est which is seen in literature
     thresh_factor = 5
     threshold = threshold_finder(filtered_data, thresh_factor)
 

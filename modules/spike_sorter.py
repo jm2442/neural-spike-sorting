@@ -115,13 +115,18 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
             x_start = 0.24
             x_end = 0.29
 
-            time_test = [time[int(peak)] for peak in idx_test]
-            plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
-            plot.samples(d_samp, 100)
 
             no_lbl_test_data = [x[0] for x in test_d]
             no_idx_pred_lbl = [x[0] for x in pred_lbl]
             d_samp_window = [x[0] for x in d_samp]
+
+            time_test = [time[int(peak)] for peak in idx_test]
+            plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
+
+            train_test_samples = [[d_samp_window[x], found_pk_lbl[x]] for x in range(len(d_samp_window))]
+
+            plot.samples(train_test_samples, 1)
+
             if clf_type == 2:
                 plot.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
             elif clf_type == 3:

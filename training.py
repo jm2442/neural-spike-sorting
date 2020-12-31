@@ -97,16 +97,16 @@ def bounds(clf_type):
 if __name__ == "__main__":
     
     # Set the fixed arguments which can be passed to the function
-    clf_type = 3
-    print_on = False
-    plot_on = False
-    evaluate = True
-    args = (clf_type, print_on, plot_on, evaluate)
+    clf_type = 2
 
     # Toggle between running the optimiser or evaluating the training only once
     optimiser = False
 
     if optimiser:
+        print_on = False
+        plot_on = False
+        evaluate = True
+        args = (clf_type, print_on, plot_on, evaluate)
         # Run the optimiser for a maximum of 25 iterations for time considerations
         result = opt.dual_annealing(objective, bounds=bounds(clf_type), maxiter=25, args=args) 
         print(result)
