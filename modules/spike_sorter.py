@@ -112,8 +112,8 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
 
         ##### PLOTTING 
         if plot_on:
-            x_start = 10
-            x_end = 12
+            x_start = 0.24
+            x_end = 0.29
 
             time_test = [time[int(peak)] for peak in idx_test]
             plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)

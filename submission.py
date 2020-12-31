@@ -13,7 +13,7 @@ from modules import feature_extract_reduce as feat_ex_reduce
 from modules import plot
 
 # Set the Classifier of choice. 2 (MLP) or 3 (KNN)
-clf_type = 3
+clf_type = 2
 
 # Set if to plot the output graphs or not
 plot_on = True
@@ -86,8 +86,8 @@ spio.savemat('../neural-spike-sorting/datasets/output_'+filestring+'.mat', outpu
 if plot_on:
 
     # Show the signal over set time interval
-    xstart = 0
-    xend = 0.8
+    xstart = 0.22
+    xend = 0.3
 
     # Plot the output of the filtering and peak detection performed over the set interval
     idx_train = list(peak_idxes[0])

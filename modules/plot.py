@@ -10,44 +10,66 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     peak_times = [time[int(peak)] for peak in index_train]
     peak_data = [smoothed_data[int(peak)] for peak in index_train]
 
-    fig, ax = plt.subplots(2, 1)
+    fig, ax = plt.subplots(4, 1)
 
     # Plot Original Wave
     color = 'tab:red'
-    ax[0].set_xlabel("Seconds")
-    ax[0].set_ylabel("Amplitude (mV)", color=color)
-    ax[0].plot(time, data, color)
+    ax[0].set_title("Signal Processing & Peak Detection")
+    # ax[0].set_xlabel("Seconds")
+    # ax[0].set_ylabel("Amplitude (mV)")
+    ax[0].plot(time, data, color, label='Original Signal')
     if training:
         ax[0].scatter(time_test, data[index_test], color='black', marker='x', linewidths=1)
-    ax[0].tick_params(axis='y', labelcolor=color)
+    # ax[0].tick_params(axis='y', labelcolor=color)
     ax[0].set_xlim([x_start,x_end])
+    # Plot Bandpass Output
+    color = 'tab:blue'
+    ax[0].plot(time, filtered_data, color, label='Bandpass Filtered Signal')
+    ax[0].get_xaxis().set_visible(False)
+    ax[0].legend()
 
     # Plot Bandpass Output
     color = 'tab:blue'
-    ax[0].plot(time, filtered_data, color)
-
-    # Plot Bandpass Output
-    color = 'tab:blue'
-    ax[1].plot(time, filtered_data, color)
+    ax[1].plot(time, filtered_data, color, label='Bandpass Filtered Signal')
+    # Plot Savitzky-Golay Filter Output
+    color = 'tab:orange'
+    # ax[1].set_xlabel("Seconds")
+    # ax[1].set_ylabel("Amplitude (mV)")
+    # ax[1].tick_params(axis='y', labelcolor=color)
+    ax[1].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
+    ax[1].set_xlim([x_start,x_end])
+    ax[1].get_xaxis().set_visible(False)
+    ax[1].legend()
 
     # Plot Savitzky-Golay Filter Output
     color = 'tab:orange'
-    ax[1].set_xlabel("Seconds")
-    ax[1].set_ylabel("Amplitude (mV)", color=color)
-    ax[1].tick_params(axis='y', labelcolor=color)
-    ax[1].plot(time, smoothed_data, color=color)
+    # ax[2].set_xlabel("Seconds")
+    # ax[2].set_ylabel("Amplitude (mV)")
+    # ax[2].tick_params(axis='y', labelcolor=color)
+    ax[2].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
+    ax[2].plot([0,58], [smoothed_threshold, smoothed_threshold], color='purple', label='5*MAD of Sav-Gol')
+    # Plot EDO Output
+    color = 'tab:green'
+    ax[2].plot(time, edo_data, color=color, label='EDO of Signal')
+    ax[2].plot([0,58], [edo_threshold, edo_threshold], color='yellow', label='Threshold Const. * MAD of EDO')
+    ax[2].set_xlim([x_start,x_end])
+    ax[2].set_ylim([-5,50])
+    ax[2].get_xaxis().set_visible(False)
+    ax[2].legend()
 
-    # # Plot EDO Output
-    # color = 'tab:green'
-    # ax[1].plot(time, edo_data, color=color)
-    # ax[1].plot([0,58], [edo_threshold, edo_threshold], color='yellow')
-
+    # Plot Savitzky-Golay Filter Output
+    color = 'tab:orange'
+    ax[3].set_xlabel("Seconds")
+    # ax[3].set_ylabel("Amplitude (mV)")
+    # ax[3].tick_params(axis='y', labelcolor=color)
+    ax[3].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
     # Plot detected peaks
-    ax[1].scatter(peak_times, peak_data, color='black', marker='x', linewidths=1)
-    ax[1].plot([0,58], [smoothed_threshold, smoothed_threshold], color='purple')
-    ax[1].set_xlim([x_start,x_end])
+    ax[3].scatter(peak_times, peak_data, color='black', marker='x', linewidths=1, label='Detected Spikes')
+    ax[3].set_xlim([x_start,x_end])
+    ax[3].legend()
 
     fig.tight_layout()
+    plt.subplots_adjust(hspace=0.0)
     plt.draw()
 
 def samples(data_samples, interval=1):
@@ -57,7 +79,7 @@ def samples(data_samples, interval=1):
     i = 0
     for wave in data_samples:
         if i % interval == 0:
-            ax.plot(wave, linewidth= 0.5, color='k', alpha =0.2)
+            ax.plot(wave[0], linewidth= 0.5, color='k', alpha =0.2)
     i += 1
     fig.tight_layout()
     plt.draw()
@@ -68,9 +90,9 @@ def PCA(pca):
     fig, ax = plt.subplots()
     ax.scatter(pca[:, 0], pca[:, 1], c=pca[:, 2])
 
-    ax.set_xlabel('1st principal component')
-    ax.set_ylabel('2nd principal component')
-    ax.set_title('first 3 principal components')
+    ax.set_xlabel('1st Principal Component')
+    ax.set_ylabel('2nd Principal Component')
+    ax.set_title('First 3 Principal Components')
     
     fig.tight_layout()
     plt.draw()
@@ -93,34 +115,39 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
+                ax[j].set_xlabel('Spike '+ str(j+1))
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
+    ax[0].set_ylabel('Amplitude (mV)')
     
-
     fig.tight_layout()
     plt.draw()
+
+    #Set colours so that averaged wave matches cluster colour
+    colourmap = np.array(['#1f77b4','#ff7f0e','#2ca02c','#d62728'])
+    colour_pred= np.array([x-1 for x in prediction_label])
 
     # Plot the output of the KNN with clusters in corresponding colours
     pca = np.array(test_data)
     fig, ax = plt.subplots(1,2)
-    ax[0].scatter(pca[:, 0], pca[:, 1], c=prediction_label)
-    ax[0].set_xlabel('1st principal component')
-    ax[0].set_ylabel('2nd principal component')
-    ax[0].set_title('Spike')
+    ax[0].scatter(pca[:, 0], pca[:, 1], c=colourmap[colour_pred])
+    ax[0].set_xlabel('1st Principal Component')
+    ax[0].set_ylabel('2nd Principal Component')
+    ax[0].set_title('KNN Clustered Data')
 
     # Plot the mean of each cluster type and an outline of the standard deviation range
     for i in range(4):
         clust_mean = np.array(cluster_list[i]).mean(axis=0)
         clust_std = np.array(cluster_list[i]).std(axis=0)
 
-        ax[1].plot(time, clust_mean, label='Neuron {}'.format(i+1))
+        ax[1].plot(time, clust_mean, label='Spike {}'.format(i+1))
         ax[1].fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
 
-    ax[1].set_title('average waveforms')
+    ax[1].set_title('Average Waveforms')
     ax[1].legend()
-    ax[1].set_xlabel('time [ms]')
-    ax[1].set_ylabel('amplitude [uV]')
+    ax[1].set_xlabel('Sample Point')
+    ax[1].set_ylabel('Amplitude (mV)')
 
     fig.tight_layout()
     plt.draw()
@@ -143,9 +170,11 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
+                ax[j].set_xlabel('Spike '+ str(j+1))
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
+    ax[0].set_ylabel('Amplitude (mV)')
 
     fig.tight_layout()
     plt.draw()
@@ -156,7 +185,7 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         clust_mean = np.array(cluster_list[i]).mean(axis=0)
         clust_std = np.array(cluster_list[i]).std(axis=0)
 
-        ax.plot(time, clust_mean, label='Neuron {}'.format(i))
+        ax.plot(time, clust_mean, label='Spike {}'.format(i))
         ax.fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
 
     ax.set_title('average waveforms')
@@ -169,8 +198,11 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
 
 def confusion_matrix(classifier, X_test, y_test):
     # Uses the sk learn library to plot a confusion matrix
-
-    skmetrics.plot_confusion_matrix(classifier, X_test, y_test)
+    # fig, ax = plt.subplots(1, 1)
+    disp = skmetrics.plot_confusion_matrix(classifier, X_test, y_test, cmap='cividis')
+    # disp.ax_set_title('Confusion Matrix for Spike Classification')
+    disp.ax_.set_title("Spike Classification Confusion Matrix")
+    disp.figure_.tight_layout()
     plt.draw()
 
 def spike_train(x_start, x_end, time, data, pred):
@@ -196,9 +228,9 @@ def spike_train(x_start, x_end, time, data, pred):
     # Plot Original Wave
     color = 'tab:red'
     ax.set_xlabel("Seconds")
-    ax.set_ylabel("Amplitude (mV)", color=color)
+    ax.set_ylabel("Amplitude (mV)")
     ax.plot(time, data, color)
-    ax.tick_params(axis='y', labelcolor=color)
+    # ax.tick_params(axis='y', labelcolor=color)
     ax.set_xlim([x_start,x_end])
 
     # Calcute number of individual neurons
@@ -208,9 +240,10 @@ def spike_train(x_start, x_end, time, data, pred):
     points=['black','blue','green','purple']
     i = 0
     for spike in spike_trains:
-        ax.scatter(spike[0], spike[1], color=points[i], marker='v', linewidths=1,label='Neuron {}'.format(neuron_types[i]))
+        ax.scatter(spike[0], spike[1], color=points[i], marker='v', linewidths=1,label='Spike {}'.format(neuron_types[i]))
         i += 1
-    # ax[0].set_xlim([x_start,x_end])
+
+    ax.set_ylim([-2.5,16])
     plt.legend()
 
     fig.tight_layout()
