@@ -46,12 +46,12 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
     # ax[2].set_xlabel("Seconds")
     # ax[2].set_ylabel("Amplitude (mV)")
     # ax[2].tick_params(axis='y', labelcolor=color)
-    ax[2].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
-    ax[2].plot([0,58], [smoothed_threshold, smoothed_threshold], color='purple', label='5*MAD of Sav-Gol')
+    ax[2].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered    Signal')
+    # ax[2].plot([0,58], [smoothed_threshold, smoothed_threshold], color='purple', label='5 * Est. std of Sav-Gol Noise')
     # Plot EDO Output
     color = 'tab:green'
     ax[2].plot(time, edo_data, color=color, label='EDO of Signal')
-    ax[2].plot([0,58], [edo_threshold, edo_threshold], color='yellow', label='Threshold Const. * MAD of EDO')
+    ax[2].plot([0,58], [edo_threshold, edo_threshold], color='yellow', label='Const. * Est. std of EDO Noise')
     ax[2].set_xlim([x_start,x_end])
     ax[2].set_ylim([-5,50])
     ax[2].get_xaxis().set_visible(False)
