@@ -90,7 +90,7 @@ def bounds(clf_type):
         b6 = (5, 50.99999)
         bounds_class = [b6]
 
-    bounds = tuple(bounds_pro + bounds_class)
+    bounds = tuple(bounds_pro + bounds_class)§§§
 
     return bounds
 

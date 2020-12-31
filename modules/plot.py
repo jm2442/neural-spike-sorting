@@ -200,7 +200,7 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         clust_mean = np.array(cluster_list[i]).mean(axis=0)
         clust_std = np.array(cluster_list[i]).std(axis=0)
 
-        ax.plot(time, clust_mean, label='Spike {}'.format(i))
+        ax.plot(time, clust_mean, label='Spike {}'.format(i+1))
         ax.fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
 
     ax.set_title('Average Waveforms')
