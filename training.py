@@ -3,9 +3,9 @@ import scipy.optimize as opt
 from modules import spike_sorter as spsrt
 import math
 
-def objective(x, clf_type, print_on, plot_on, evaluate):
+def objective(x, fixed_args, clf_type, print_on, plot_on, evaluate):
     # A function that simply returns value from spike sorter as negative number in order to minimise the output
-    return -spsrt.spike_sorter(x, clf_type, print_on, plot_on, evaluate=True)
+    return -spsrt.spike_sorter(x, fixed_args, clf_type, print_on, plot_on, evaluate=True)
 
 def parameters(clf_type):
     # Returns the optimal parameters for each classifier
