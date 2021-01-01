@@ -13,17 +13,20 @@ from modules import feature_extract_reduce as feat_ex_reduce
 from modules import plot
 
 # Set the Classifier of choice. 2 (MLP) or 3 (KNN)
-clf_type = 2
+clf_type = 3
 
 # Set if to plot the output graphs or not
 plot_on = True
 
 # Obtain parameters for either classifier from where optimisation has been performed
 params = opt.parameters(clf_type)
+args = opt.fixed_arguments(clf_type)
 if clf_type == 2:
-    low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,  num_layers, num_neurons, act_function, alpha, learn_rate_type = params
+    samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = args
+    num_layers, num_neurons = params
 elif clf_type == 3:
-    low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,num_neighbors = params
+    samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, pca_dim, weights = args
+    num_neighbors = params[0]
 
 # Load corresponding dataset from .mat file provided
 mat = spio.loadmat('../neural-spike-sorting/datasets/submission.mat', squeeze_me=True)
@@ -32,7 +35,7 @@ mat = spio.loadmat('../neural-spike-sorting/datasets/submission.mat', squeeze_me
 d = mat['d']
 
 # Filter noisey data and smooth to help classifier distinguish shapes
-time, filt_d, smth_d = filt.signal_processing(d, low_cutoff, high_cutoff, smooth_size)
+time, filt_d, smth_d = filt.signal_processing(d, low_cutoff, high_cutoff, smooth_size, samp_freq)
 
 # Determine the location of the peaks' idxes
 peak_idxes, edo_d, edo_thresh, smth_thresh = spdt.peak_detector(smth_d, edo_thresh_factor)
@@ -53,7 +56,7 @@ try:
 except Exception as ex:
     # If no saved model is found perform retraining with the optimised parameters for the training dataset
     print("No saved trained model found, retraining of training dataset")
-    trained_clf = spsrt.spike_sorter(params, clf_type, print_on=False, plot_on=False, evaluate=False)
+    trained_clf = spsrt.spike_sorter(params, args, clf_type, print_on=False, plot_on=False, evaluate=False)
 
 # Extract just the window data and not the peak index
 d_samp_window = [x[0] for x in d_samp]

@@ -15,20 +15,20 @@ from modules import classification as classifier
 from modules import plot
 from modules import performance_metrics as metrics
     
-def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
+def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=True):
     # Returns an evaluate score on a trained model's performance or the trained model itself
 
     # Print parameters which have been input
     print("-"*20)
     print(params)
 
-    pca_dim = 3
-
     # Extract parameters for sorter depending on classification method chosen
     if clf_type == 2:
-        low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,  num_layers, num_neurons, act_function, alpha, learn_rate_type = params
+        samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = fixed_arguments
+        num_layers, num_neurons = params
     elif clf_type == 3:
-        low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,num_neighbors = params
+        samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, pca_dim, weights = fixed_arguments
+        num_neighbors = params[0]
 
     # Load corresponding dataset from .mat file provided
     mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
@@ -38,7 +38,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
     idx_test, class_test = (list(t) for t in zip(*sorted(zip(mat['Index'], mat['Class']))))
 
     # Apply a bandpass and a Savitzky-golay filter to remove worst of the noise
-    time, filt_d, smth_d = filt.signal_processing(d, low_cutoff, high_cutoff, smooth_size)
+    time, filt_d, smth_d = filt.signal_processing(d, low_cutoff, high_cutoff, smooth_size, samp_freq)
 
     # Determine the location of the peaks' idxes
     peak_idxes, edo_d, edo_thresh, smth_thresh = spdt.peak_detector(smth_d, edo_thresh_factor)
@@ -71,7 +71,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
                 train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
 
                 # Perform classification using a Multi-Layer Perceptron
-                pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on)
+                pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on)
 
                 # Compute the metrics of the classifcation and add to list of k number of scores
                 f1_score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
@@ -95,7 +95,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
                 train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
 
                 # Perform classification using K Nearest Neighbours
-                pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on)
+                pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on)
 
                 # Compute the metrics of the classifcation and add to list of k number of scores
                 f1_score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
@@ -151,7 +151,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
             test_d = []
             test_lbl = []
 
-            MLP = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, plot_on, evaluate=False)
+            MLP = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on, evaluate=False)
 
             # filename = '../neural-spike-sorting/models/MLP.pkl'
             # with open(filename, 'wb') as f:
@@ -171,7 +171,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
             test_lbl = []
 
             # Perform classification using K Nearest Neighbours
-            KNN = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, plot_on, evaluate=False)
+            KNN = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on, evaluate=False)
             
             # filename = '../neural-spike-sorting/models/KNN.pkl'
             # with open(filename, 'wb') as f:

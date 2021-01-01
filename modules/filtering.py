@@ -34,11 +34,11 @@ def smoothing(filtered_data, window_size=17):
 
     return smoothed_data
 
-def signal_processing(d, low_cutoff, high_cutoff, smooth_size):
+def signal_processing(d, low_cutoff, high_cutoff, smooth_size, samp_freq=25000):
     # Returns the output from the signal processing operations that have been preformed
 
     # Set the sampling frequency that is given to us, convert frequency sample into cumulative time
-    samp_freq = 25000
+    # samp_freq = 25000
     time = list(np.linspace(0, len(d)*1/samp_freq, len(d)))
 
     # Apply a bandpass and a Savitzky-golay filter to remove worst of the noise
