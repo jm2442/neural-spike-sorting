@@ -22,6 +22,8 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
     print("-"*20)
     print(params)
 
+    pca_dim = 3
+
     # Extract parameters for sorter depending on classification method chosen
     if clf_type == 2:
         low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size,  num_layers, num_neurons, act_function, alpha, learn_rate_type = params
@@ -79,10 +81,9 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
         elif clf_type == 3:
 
             # Preform PCA to extract the most important features and reduce dimension
-            pca_dim = 16
             d_samp_window = [x[0] for x in d_samp]
-            pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
-            pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]
+            pca_out = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
+            pca = [[pca_out[x], d_samp[x][1]] for x in range(len(pca_out))]
 
             # Split the data by index of k iterations to preform k fold cross validation
             kf  = KFold(n_splits=k_splits)
@@ -130,7 +131,7 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
             if clf_type == 2:
                 plot.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
             elif clf_type == 3:
-                
+                plot.PCA(pca_out)
                 plot.KNN(no_lbl_test_data, no_idx_pred_lbl, np.array(d_samp_window)[test_k])
 
             plt.show()
@@ -160,7 +161,6 @@ def spike_sorter(params, clf_type, print_on, plot_on, evaluate=True):
 
         elif clf_type == 3:
             # Preform PCA to extract the most important features and reduce dimension
-            pca_dim = 16
             d_samp_window = [x[0] for x in d_samp]
             pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)
             pca = [[pca[x], d_samp[x][1]] for x in range(len(pca))]

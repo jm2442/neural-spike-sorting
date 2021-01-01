@@ -15,7 +15,7 @@ def parameters(clf_type):
             "low_cutoff": 10,#3.34,10
             "high_cutoff": 8000,#9158.98,8000
             "smooth_size": 21,#
-            "edo_thresh_factor": 20,#20training/10testing
+            "edo_thresh_factor": 10,#20training/10testing
             "window_size": 90#64 #100
     }
 
@@ -53,7 +53,7 @@ def parameters(clf_type):
         # Euclidean
         # weight = distance
 
-        ### PCA= 16
+        ### PCA= 3
 
         params["num_neighbours"] = 7
 
@@ -90,14 +90,14 @@ def bounds(clf_type):
         b6 = (5, 50.99999)
         bounds_class = [b6]
 
-    bounds = tuple(bounds_pro + bounds_class)§§§
+    bounds = tuple(bounds_pro + bounds_class)
 
     return bounds
 
 if __name__ == "__main__":
     
     # Set the fixed arguments which can be passed to the function
-    clf_type = 2
+    clf_type = 3
 
     # Toggle between running the optimiser or evaluating the training only once
     optimiser = False

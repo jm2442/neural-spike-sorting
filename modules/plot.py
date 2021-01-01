@@ -133,7 +133,7 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
         ax[j].set_ylim([-2,12])
         j += 1
     ax[0].set_ylabel('Amplitude (mV)')
-    fig.suptitle("Predicted Neurons MLP")
+    fig.suptitle("Predicted Neurons KNN")
     
     fig.tight_layout()
     plt.draw()
