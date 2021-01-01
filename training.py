@@ -9,7 +9,15 @@ def objective(x, fixed_args, clf_type, print_on, plot_on, evaluate):
 
 def parameters(clf_type):
     # Returns the optimal parameters for each classifier
-    params = {}
+    
+    # Signal processing parameters common to both classifier types
+    params = {
+            "samp_freq": 25000,
+            "low_cutoff": 10,
+            "high_cutoff": 8000,
+            "smooth_size": 21,
+            "edo_thresh_factor": 20#20training/10testing
+    }
     
     if clf_type == 2:
         # Optimal Params found by optimiser clf_type 2
@@ -20,8 +28,8 @@ def parameters(clf_type):
 
     elif clf_type == 3:
         # Optimal Params found by optimiser clf_type 3 
-        # "num_neighbours": 7
-        params["num_neighbours"] = 7
+        # "num_neighbours": 8
+        params["num_neighbours"] = 8
 
     # Output parameters as list to pass to optimiser
     parameters = []
@@ -51,17 +59,8 @@ def bounds(clf_type):
 
 def fixed_arguments(clf_type):
     # Returns the fixed arguments for each classifier
-
-    # Signal processing parameters common to both classifier types
-    args = {
-            "samp_freq": 25000,
-            "low_cutoff": 10,
-            "high_cutoff": 8000,
-            "smooth_size": 21,
-            "edo_thresh_factor": 10,#20training/10testing
-            "window_size": 90
-    }
-
+    args = {"window_size": 90}
+    
     if clf_type == 2:
         #  fixed arguments for clf_type 2
         args["act_function"] = 'relu'
@@ -89,7 +88,7 @@ if __name__ == "__main__":
     clf_type = 2
 
     # Toggle between running the optimiser or evaluating the training only once
-    optimiser = False
+    optimiser = True
 
     if optimiser:
         print_on = False
