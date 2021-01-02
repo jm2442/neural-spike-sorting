@@ -12,21 +12,27 @@ from modules import alignment as align
 from modules import feature_extract_reduce as feat_ex_reduce
 from modules import plot
 
+########## INPUTS ##########    
 # Set the Classifier of choice. 2 (MLP) or 3 (KNN)
 clf_type = 3
 
 # Set if to plot the output graphs or not
 plot_on = True
 
+# Set the boundaries for timeseries plots
+x_start = 0.23
+x_end = 0.29
+############################
+
 # Obtain parameters for either classifier from where optimisation has been performed
 params = opt.parameters(clf_type)
 args = opt.fixed_arguments(clf_type)
 if clf_type == 2:
-    samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = args
-    num_layers, num_neurons = params
+    samp_freq, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = args
+    low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, num_layers, num_neurons = params
 elif clf_type == 3:
-    samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, pca_dim, weights = args
-    num_neighbors = params[0]
+    samp_freq, window_size, pca_dim, weights = args
+    low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, num_neighbors = params
 
 # Load corresponding dataset from .mat file provided
 mat = spio.loadmat('../neural-spike-sorting/datasets/submission.mat', squeeze_me=True)
@@ -44,19 +50,9 @@ peak_idxes, edo_d, edo_thresh, smth_thresh = spdt.peak_detector(smth_d, edo_thre
 found_pk_lbl = [x for x in peak_idxes[0]]
 d_samp = np.array(align.spike_extractor(smth_d, found_pk_lbl, window_size))
 
-# Try to see if a pretrained saved model exists to save computation
-try:
-    if clf_type == 2:
-        filename = '../neural-spike-sorting/models/MLP.pkl'
-    elif clf_type == 3:
-        filename = '../neural-spike-sorting/models/KNN.pkl'     
-    with open(filename, 'rb') as f:
-        trained_clf = pickle.load(f)
-    print("Saved model found, classifying submission dataset")
-except Exception as ex:
-    # If no saved model is found perform retraining with the optimised parameters for the training dataset
-    print("No saved trained model found, retraining of training dataset")
-    trained_clf = spsrt.spike_sorter(params, args, clf_type, print_on=False, plot_on=False, evaluate=False)
+# Perform retraining with the optimised parameters for the training dataset
+print("Retraining on training dataset")
+trained_clf = spsrt.spike_sorter(params, args, clf_type, print_on=False, plot_on=False, evaluate=False)
 
 # Extract just the window data and not the peak index
 d_samp_window = [x[0] for x in d_samp]
@@ -83,21 +79,18 @@ output = {
     "Index":[x[1] for x in predictions]
 }
 
+########## OUTPUTS ##########
 # Output the dataset for the chosen classifier
-spio.savemat('../neural-spike-sorting/datasets/output_'+filestring+'.mat', output)
+cand_num = '13224'
+spio.savemat('../neural-spike-sorting/datasets/'+cand_num+'.mat', output)
 
 if plot_on:
-
-    # Show the signal over set time interval
-    xstart = 0.22
-    xend = 0.3
-
     # Plot the output of the filtering and peak detection performed over the set interval
     idx_train = list(peak_idxes[0])
-    plot.filter_and_detection(xstart, xend, time, d, time_test=[], index_train=idx_train, index_test=[], filtered_data=filt_d, smoothed_data=smth_d, smoothed_threshold=smth_thresh, edo_data=edo_d, edo_threshold=edo_thresh, training=False)
+    plot.filter_and_detection(x_start, x_end, time, d, time_test=[], index_train=idx_train, index_test=[], filtered_data=filt_d, smoothed_data=smth_d, smoothed_threshold=smth_thresh, edo_data=edo_d, edo_threshold=edo_thresh, training=False)
 
     # Plot the output spike train
-    num_spike = plot.spike_train(xstart, xend, time, d, predictions)
+    num_spike = plot.spike_train(x_start, x_end, time, d, predictions)
 
     # Print number of peaks
     print("Number of 1st neuron: " + str(num_spike[0]))
@@ -115,3 +108,4 @@ if plot_on:
 
     # Show all drawn plots at the end of the script
     plt.show()
+############################

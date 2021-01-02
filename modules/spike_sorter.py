@@ -15,7 +15,7 @@ from modules import classification as classifier
 from modules import plot
 from modules import performance_metrics as metrics
     
-def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=True):
+def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=True, x_start = 0.24, x_end = 0.29):
     # Returns an evaluate score on a trained model's performance or the trained model itself
 
     # Print parameters which have been input
@@ -24,11 +24,11 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
 
     # Extract parameters for sorter depending on classification method chosen
     if clf_type == 2:
-        samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = fixed_arguments
-        num_layers, num_neurons = params
+        samp_freq, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = fixed_arguments
+        low_cutoff, high_cutoff, smooth_size, edo_thresh_factor,num_layers, num_neurons = params
     elif clf_type == 3:
-        samp_freq, low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, window_size, pca_dim, weights = fixed_arguments
-        num_neighbors = params[0]
+        samp_freq, window_size, pca_dim, weights = fixed_arguments
+        low_cutoff, high_cutoff, smooth_size, edo_thresh_factor,num_neighbors = params
 
     # Load corresponding dataset from .mat file provided
     mat = spio.loadmat('../neural-spike-sorting/datasets/training.mat', squeeze_me=True)
@@ -54,10 +54,10 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
     # Extract each spike as a sample window
     d_samp = align.spike_extractor(smth_d, found_pk_idx, window_size)
 
-    # Set number of k fold splits to account for the proportion of training to test data, 5 = 80/20, 4 = 75/25 etc.
-
+    # Evaluate will be true for all times except when a model is to be trained on the training dataset to be run on the submission dataset
     if evaluate:
 
+        # Set number of k fold splits to account for the proportion of training to test data, 5 = 80/20, 4 = 75/25 etc.
         k_splits = 5
         if clf_type == 2:
             
@@ -113,31 +113,32 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
 
         ##### PLOTTING 
         if plot_on:
-            x_start = 0.24
-            x_end = 0.29
-
-
+            
+            # Extracting data for plots
             no_lbl_test_data = [x[0] for x in test_d]
             no_idx_pred_lbl = [x[0] for x in pred_lbl]
             d_samp_window = [x[0] for x in d_samp]
-
             time_test = [time[int(peak)] for peak in idx_test]
-            plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
-
             train_test_samples = [[d_samp_window[x], found_pk_lbl[x]] for x in range(len(d_samp_window))]
 
+            # Plot filtering and peak detection over set interval
+            plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
+
+            # Plot extracted labelled spikes from training data
             plot.samples(train_test_samples, 1)
 
             if clf_type == 2:
+                # Plot predictions from MLP classifier
                 plot.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
             elif clf_type == 3:
+                # Plot predictions from PCA & KNN classifier
                 plot.PCA(pca_out)
                 plot.KNN(no_lbl_test_data, no_idx_pred_lbl, np.array(d_samp_window)[test_k])
 
             plt.show()
         
         print("*"*20)
-        print("Average Score = " + str(round(peak_loc_success * mean_f1_score * 100, 2)))
+        print("Total System Score = " + str(round(peak_loc_success * mean_f1_score * 100, 2)))
         print("*"*20)
 
         return peak_loc_success * mean_f1_score
@@ -151,11 +152,8 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
             test_d = []
             test_lbl = []
 
+            # Build, train and return MLP model to be applied to submission dataset
             MLP = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on, evaluate=False)
-
-            # filename = '../neural-spike-sorting/models/MLP.pkl'
-            # with open(filename, 'wb') as f:
-            #     pickle.dump(MLP, f)9
 
             return MLP
 
@@ -170,16 +168,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
             test_d = []
             test_lbl = []
 
-            # Perform classification using K Nearest Neighbours
+            # Build, train and return KNN model to be applied to submission dataset
             KNN = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on, evaluate=False)
-            
-            # filename = '../neural-spike-sorting/models/KNN.pkl'
-            # with open(filename, 'wb') as f:
-            #     pickle.dump(KNN, f)
 
             return KNN
-
-# TO DO 
-# PLOT LABELS< LEGENDS< ETC
-# label neurons correctly
-# READ ME

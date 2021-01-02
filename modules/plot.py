@@ -65,7 +65,7 @@ def samples(data_samples, interval=1):
     # Sort each wave sample into its corresponding class type
     cluster_list=[0]*4
     for cluster in [1,2,3,4]:
-        cluster_list[cluster-1] =  [data_samples[x][0] for x in range(len(data_samples)) if data_samples[x][1] == cluster]
+        cluster_list[cluster-1] = [data_samples[x][0] for x in range(len(data_samples)) if data_samples[x][1] == cluster]
 
     # Plot the samples of each cluster at a set interval
     fig, ax = plt.subplots(1,4)
@@ -244,7 +244,8 @@ def spike_train(x_start, x_end, time, data, pred):
     color = 'tab:red'
     ax.set_xlabel("Seconds")
     ax.set_ylabel("Amplitude (mV)")
-    ax.plot(time, data, color)
+    ax.set_title("Spike Train for Submission Dataset")
+    ax.plot(time, data, color, label='Original Signal')
     # ax.tick_params(axis='y', labelcolor=color)
     ax.set_xlim([x_start,x_end])
 
