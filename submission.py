@@ -35,7 +35,7 @@ elif clf_type == 3:
     low_cutoff, high_cutoff, smooth_size, edo_thresh_factor, num_neighbors = params
 
 # Load corresponding dataset from .mat file provided
-mat = spio.loadmat('../neural-spike-sorting/datasets/submission.mat', squeeze_me=True)
+mat = spio.loadmat('datasets/submission.mat', squeeze_me=True)
 
 # Assign loaded data to variables
 d = mat['d']
@@ -82,7 +82,7 @@ output = {
 ########## OUTPUTS ##########
 # Output the dataset for the chosen classifier
 cand_num = '13224'
-spio.savemat('../neural-spike-sorting/datasets/'+cand_num+'.mat', output)
+spio.savemat('datasets/'+cand_num+'.mat', output)
 
 if plot_on:
     # Plot the output of the filtering and peak detection performed over the set interval
