@@ -1,5 +1,13 @@
 # Neural Spike Sorting
-A system to automatically analyse a set of recordings that have been made from the human brain. 
+A system to automatically analyse a set of recordings that have been made using a simple bipolar electrode inseted within the cortical region of the human brain.
+
+This system has been developed using two different datasets of recordings. 
+The first is a training dataset which has been generated using a detailed simulation model and contains a single time domain recording of the spikes from four types
+of neurons. Accompanying the recording are labels which identify the index and class of the spike within the dataset. The training dataset is used to evaluate the
+performance of the spike detection and different classification techniques using k-fold cross validation before its application to the submission dataset.
+The submission dataset contains an unlabeled real recording made from the cortical region of the brain containing the same spikes from the four neurons as in the
+training dataset. The submission dataset's noise is much worse than the training dataset as the subject was moving when the recordings were made.
+
 EE40098 – Coursework C,
 Set by Dr B W Metcalfe,
 Department of Electronic & Electrical Engineering,
@@ -19,10 +27,13 @@ The three main inputs for the script are:
           * False - System is to be evaluated with only the current parameters
       * X axis limits (i.e. the time interval) for time series plots (x_start and x_end) - Only used when plot_on = True
 
-If more control over the specific inputs e.g. low cut-off frequency, number of PCA dimensions etc. for either the training or submission datasets is required, they can be accessed within the parameters() and fixed_arguments() functions.
+If more control over the specific inputs e.g. low cut-off frequency, number of PCA dimensions etc. for either the training or submission datasets is required, they
+can be accessed within the parameters() and fixed_arguments() functions.
 
 2. **Submission.py**\
-The top level script for building and training (based on the parameters set in *training.py*) the spike sorting system on the *training.mat* dataset and then evaluating the system performance on the *submission.mat* dataset provided by producing an output *submission.mat* file for examiner evaluation. Within *submission.py* The three main toggleable inputs for the script are:
+The top level script for building and training (based on the parameters set in *training.py*) the spike sorting system on the *training.mat* dataset and then
+evaluating the system performance on the *submission.mat* dataset provided by producing an output *submission.mat* file for examiner evaluation. Within
+*submission.py* The three main toggleable inputs for the script are:
       * Classifier type (clf_type)
           * 2 - Multi-Layer Perceptron
           * 3 - K Nearest Neighbours (with PCA) 
