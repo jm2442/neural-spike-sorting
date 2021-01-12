@@ -1,5 +1,5 @@
 # Neural Spike Sorting
-A system to automatically analyse a set of recordings that have been made using a simple bipolar electrode inseted within the cortical region of the human brain.
+A system to automatically analyse a set of recordings that have been made using a simple bipolar electrode inserted within the cortical region of the human brain.
 
 This system has been developed using two different datasets of recordings. 
 
