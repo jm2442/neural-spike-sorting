@@ -1,5 +1,12 @@
 # Neural Spike Sorting
-A system to automatically analyse a set of recordings that have been made from the human brain. 
+A system to automatically analyse a set of recordings that have been made using a simple bipolar electrode inseted within the cortical region of the human brain.
+
+This system has been developed using two different datasets of recordings. 
+
+The first is a training dataset which has been generated using a detailed simulation model and contains a single time domain recording of the spikes from four types of neurons. Accompanying the recording are labels which identify the index and class of the spike within the dataset. The training dataset is used to build and evaluate the performance of the spike detection and classification using k-fold cross validation before its application to the submission dataset.
+
+The second is a submission dataset which contains a real recording made from the cortical region of the brain. It contains the same spikes from the four neurons as in the training dataset. The submission dataset's noise is much worse than the training dataset as the subject was moving when the recordings were made. The output that are produced by the system are a .mat file that contains the respective indexes and classes of the spikes identified using the model on the submission dataset.
+
 EE40098 – Coursework C,
 Set by Dr B W Metcalfe,
 Department of Electronic & Electrical Engineering,
