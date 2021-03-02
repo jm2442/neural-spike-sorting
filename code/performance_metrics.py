@@ -5,17 +5,17 @@ def peak_location(incorrect_indexes, success_rate, print_on=True):
 
     if print_on:
         # Print every 20th incorrect peak
-        print("*"*20)
-        print("Sample of Incorrect Indexes")
+        print('*'*20)
+        print('Sample of Incorrect Indexes')
         i = 0
         for index in incorrect_indexes:
             if i % 20 == 0:
-                print(f"{index[0]} - {index[0]/25000}")
+                print(f'{index[0]} - {index[0]/25000}')
             i += 1
         
         # Print the F1 score for determining the spike location
-        print("*"*20)
-        print(f"Location F1 Score (%) = {round(success_rate*100, 2)}")
+        print('*'*20)
+        print(f'Location F1 Score (%) = {round(success_rate*100, 2)}')
 
 def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
     # Returns all the indexes including which of those have been correctly located, as well as the F1 score
@@ -112,13 +112,13 @@ def peak_classification(test_label, prediction_label, print_on=True):
     pred_label = [x[0] for x in prediction_label]
     
     # Calculate the weight f1 score as a harmonic mean between the precision and recall, to give a better estimate of the model's performance
-    weighted_f1_score = metrics.f1_score(test_label, pred_label, average="weighted")
+    weighted_f1_score = metrics.f1_score(test_label, pred_label, average='weighted')
     
     if print_on:
         # Print the score of each k fold iteration
-        print("*"*20)
-        print(f"Classification Weighted F1 score (%) = {round(weighted_f1_score*100, 2)}")
-        print("*"*20)
+        print('*'*20)
+        print(f'Classification Weighted F1 score (%) = {round(weighted_f1_score*100, 2)}')
+        print('*'*20)
 
     return weighted_f1_score
 

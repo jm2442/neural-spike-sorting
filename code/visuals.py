@@ -14,7 +14,7 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
 
     # Plot Original Wave
     color = 'tab:red'
-    ax[0].set_title("Signal Processing & Peak Detection")
+    ax[0].set_title('Signal Processing & Peak Detection')
     ax[0].plot(time, data, color, label='Original Signal')
     if training:
         ax[0].scatter(time_test, data[index_test], color='black', marker='x', linewidths=1)
@@ -49,7 +49,7 @@ def filter_and_detection(x_start, x_end, time, data, time_test, index_train, ind
 
     # Plot Savitzky-Golay Filter Output
     color = 'tab:orange'
-    ax[3].set_xlabel("Seconds")
+    ax[3].set_xlabel('Seconds')
     ax[3].plot(time, smoothed_data, color=color, label='Sav-Gol Filtered Signal')
     # Plot detected peaks
     ax[3].scatter(peak_times, peak_data, color='black', marker='x', linewidths=1, label='Detected Spikes')
@@ -75,12 +75,12 @@ def samples(data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
-                ax[j].set_xlabel(f"Spike {j+1}")
+                ax[j].set_xlabel(f'Spike {j+1}')
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
     ax[0].set_ylabel('Amplitude (mV)')
-    fig.suptitle("Training Data Provided Labels")
+    fig.suptitle('Training Data Provided Labels')
     
     fig.tight_layout()
     plt.draw()
@@ -92,8 +92,8 @@ def samples(data_samples, interval=1):
     #     if i % interval == 0:
     #         ax.plot(wave[0], linewidth= 0.5, color='k', alpha =0.2)
     # i += 1
-    # ax.set_ylabel("Amplitude (mV)")
-    # ax.set_title("Extracted Spike Samples")
+    # ax.set_ylabel('Amplitude (mV)')
+    # ax.set_title('Extracted Spike Samples')
     # fig.tight_layout()
     # plt.draw()
 
@@ -128,12 +128,12 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
-                ax[j].set_xlabel(f"Spike {j+1}")
+                ax[j].set_xlabel(f'Spike {j+1}')
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
     ax[0].set_ylabel('Amplitude (mV)')
-    fig.suptitle("Predicted Neurons KNN")
+    fig.suptitle('Predicted Neurons KNN')
     
     fig.tight_layout()
     plt.draw()
@@ -189,7 +189,7 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         ax[j].set_ylim([-2,12])
         j += 1
     ax[0].set_ylabel('Amplitude (mV)')
-    fig.suptitle("Predicted Neurons MLP")
+    fig.suptitle('Predicted Neurons MLP')
 
     fig.tight_layout()
     plt.draw()
@@ -216,7 +216,7 @@ def confusion_matrix(classifier, X_test, y_test):
     # fig, ax = plt.subplots(1, 1)
     disp = skmetrics.plot_confusion_matrix(classifier, X_test, y_test, cmap='cividis')
     # disp.ax_set_title('Confusion Matrix for Spike Classification')
-    disp.ax_.set_title("Spike Classification Confusion Matrix")
+    disp.ax_.set_title('Spike Classification Confusion Matrix')
     disp.figure_.tight_layout()
     plt.draw()
 
@@ -242,9 +242,9 @@ def spike_train(x_start, x_end, time, data, pred):
 
     # Plot Original Wave
     color = 'tab:red'
-    ax.set_xlabel("Seconds")
-    ax.set_ylabel("Amplitude (mV)")
-    ax.set_title("Spike Train for Submission Dataset")
+    ax.set_xlabel('Seconds')
+    ax.set_ylabel('Amplitude (mV)')
+    ax.set_title('Spike Train for Submission Dataset')
     ax.plot(time, data, color, label='Original Signal')
     # ax.tick_params(axis='y', labelcolor=color)
     ax.set_xlim([x_start,x_end])

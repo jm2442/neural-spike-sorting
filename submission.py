@@ -13,7 +13,7 @@ from code import alignment as align
 from code import feature_extract_reduce as feat_ex_reduce
 from code import visuals
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     ########## INPUTS ##########    
     # Set the Classifier of choice. (MLP) or (KNN)
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     d_samp = np.array(align.spike_extractor(smth_d, found_pk_lbl, window_size))
 
     # Perform retraining with the optimised parameters for the training dataset
-    print("Retraining on training dataset")
+    print('Retraining on training dataset')
     trained_clf = spsrt.spike_sorter(params, args, clf_type, print_on=False, plot_on=False, evaluate=False)
 
     # Extract just the window data and not the peak index
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         filestring = 'KNN'
 
     print('-'*10)
-    print("Model ready, running submission dataset")
+    print('Model ready, running submission dataset')
 
     # Using the model trained on the training dataset, predict the labels of the spikes
     pred_lbl = trained_clf.predict(input_samples)
@@ -78,14 +78,14 @@ if __name__ == "__main__":
     # Integrate the corresponding spike indexes to the spike class
     predictions = [[pred_lbl[x], d_samp[x][1]] for x in range(len(pred_lbl))]
     output = {
-        "Class":[x[0] for x in predictions],
-        "Index":[x[1] for x in predictions]
+        'Class':[x[0] for x in predictions],
+        'Index':[x[1] for x in predictions]
     }
 
     ########## OUTPUTS ##########
     # Output the dataset for the chosen classifier
     cand_num = '13224'
-    spio.savemat(f"datasets/{cand_num}.mat", output)
+    spio.savemat(f'datasets/{cand_num}.mat', output)
 
     if plot_on:
         # Plot the output of the filtering and peak detection performed over the set interval
@@ -96,12 +96,12 @@ if __name__ == "__main__":
         num_spike = visuals.spike_train(x_start, x_end, time, d, predictions)
 
         # Print number of peaks
-        print(f"Number of 1st neuron: {num_spike[0]}")
-        print(f"Number of 2nd neuron: {num_spike[1]}")
-        print(f"Number of 3rd neuron: {num_spike[2]}")
-        print(f"Number of 4th neuron: {num_spike[3]}")
+        print(f'Number of 1st neuron: {num_spike[0]}')
+        print(f'Number of 2nd neuron: {num_spike[1]}')
+        print(f'Number of 3rd neuron: {num_spike[2]}')
+        print(f'Number of 4th neuron: {num_spike[3]}')
 
-        print(f"Total number of peaks found: {len(predictions)}")
+        print(f'Total number of peaks found: {len(predictions)}')
 
         # Plot the average waveform for each of the classified neurons
         if clf_type == 'MLP':

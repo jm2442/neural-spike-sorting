@@ -14,13 +14,13 @@ def threshold_finder(filtered_data, thresh_factor=5):
     return thr
 
 def hilbert_transform(x):
-    """
+    '''
     compute the discrete hilbert transform, as defined in [1].
 
     based on code from https://github.com/otoolej/envelope_derivative_operator/blob/master/energy_operators/edo.py (Accessed 16/12/20)
 
     [1] JM O' Toole, A Temko, NJ Stevenson, “Assessing instantaneous energy in the EEG: a non-negative, frequency-weighted energy operator”, IEEE Int. Conf.  on Eng. in Medicine and Biology, Chicago, August 2014
-    """
+    '''
 
     xlen = len(x)
     xmid = np.ceil(xlen / 2)
@@ -34,13 +34,13 @@ def hilbert_transform(x):
     return(x_hilb)
 
 def envel_deriv_operator(x):
-    """
+    '''
     compute the envelope derivative operator (EDO), as defined in [1].
 
     based on code from https://github.com/otoolej/envelope_derivative_operator/blob/master/energy_operators/edo.py (Accessed 16/12/20)
 
     [1] JM O' Toole, A Temko, NJ Stevenson, “Assessing instantaneous energy in the EEG: a non-negative, frequency-weighted energy operator”, IEEE Int. Conf.  on Eng. in Medicine and Biology, Chicago, August 2014
-    """
+    '''
 
     # Make sure x is an even length
     initial_xlen = len(x)

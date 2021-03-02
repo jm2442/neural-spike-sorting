@@ -12,10 +12,10 @@ def parameters(clf_type):
     
     # Signal processing parameters common to both classifier types
     params = {                      
-            "low_cutoff": 10,       
-            "high_cutoff": 8000,   
-            "smooth_size": 21,      
-            "edo_thresh_factor": 10
+            'low_cutoff': 10,       
+            'high_cutoff': 8000,   
+            'smooth_size': 21,      
+            'edo_thresh_factor': 10
     #Initial    #Opt 1      #Opt 2      #Adjusted
     #92.99      #93.97      #95.58      #93.46
     #10         #4.68       #1.77       #10
@@ -27,12 +27,12 @@ def parameters(clf_type):
     
     if clf_type == 'MLP':
         # Optimal Params found by optimiser MLP
-        params["num_layers"] = 1.0
-        params["num_neurons"] = 100.0
+        params['num_layers'] = 1.0
+        params['num_neurons'] = 100.0
 
     elif clf_type == 'KNN':
         # Optimal Params found by optimiser KNN 
-        params["num_neighbours"] = 7                     
+        params['num_neighbours'] = 7                     
 
     # Output parameters as list to pass to optimiser
     parameters = []
@@ -70,22 +70,22 @@ def bounds(clf_type):
 def fixed_arguments(clf_type):
     # Returns the fixed arguments for each classifier
     args = {
-        "samp_freq": 25000,
-        "window_size": 90
+        'samp_freq': 25000,
+        'window_size': 90
         }
 
     if clf_type == 'MLP':
         #  fixed arguments for clf_type 2
-        args["act_function"] = 'relu'
-        args["alpha"] = 0.0001
-        args["learn_rate_type"] = 'constant'
-        args["learn_rate_init"] = 0.001
-        args["max_iter"] = 100
+        args['act_function'] = 'relu'
+        args['alpha'] = 0.0001
+        args['learn_rate_type'] = 'constant'
+        args['learn_rate_init'] = 0.001
+        args['max_iter'] = 100
 
     elif clf_type == 'KNN':
         # fixed arguments for clf_type 3 
-        args["pca_dim"] = 3
-        args["weights"] = 'distance'
+        args['pca_dim'] = 3
+        args['weights'] = 'distance'
 
 
     # Output parameters as list to pass to optimiser
@@ -95,7 +95,7 @@ def fixed_arguments(clf_type):
 
     return arguments
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     ########## INPUTS ##########
     # Set the Classifier of choice. (MLP) or (KNN)
