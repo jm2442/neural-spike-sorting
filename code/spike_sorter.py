@@ -107,9 +107,9 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
         std_f1_score = np.std(kth_score)
         if print_on:
             print("*"*20)
-            print("Mean Weighted F1 score (%) = "+ str(round(mean_f1_score*100, 2)))
-            print("Model Bias = "+ str(round((1-mean_f1_score), 4)))
-            print("Model Variance = "+ str(round(std_f1_score, 4)))
+            print(f"Mean Weighted F1 score (%) = {round(mean_f1_score*100, 2)}")
+            print(f"Model Bias = {round((1-mean_f1_score), 4)}")
+            print(f"Model Variance = {round(std_f1_score, 4)}")
 
         ##### PLOTTING 
         if plot_on:
@@ -138,7 +138,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
             plt.show()
         
         print("*"*20)
-        print("Total System Score = " + str(round(peak_loc_success * mean_f1_score * 100, 2)))
+        print(f"Total System Score = {round(peak_loc_success * mean_f1_score * 100, 2)}")
         print("*"*20)
 
         return peak_loc_success * mean_f1_score

@@ -10,12 +10,12 @@ def peak_location(incorrect_indexes, success_rate, print_on=True):
         i = 0
         for index in incorrect_indexes:
             if i % 20 == 0:
-                print(str(index[0]) + " - " + str(index[0]/25000))
+                print(f"{index[0]} - {index[0]/25000}")
             i += 1
         
         # Print the F1 score for determining the spike location
         print("*"*20)
-        print("Location F1 Score (%) = " + str(round(success_rate*100, 2)))
+        print(f"Location F1 Score (%) = {round(success_rate*100, 2)}")
 
 def peak_location_accuracy(index_test, index_train, class_test, print_on=True):
     # Returns all the indexes including which of those have been correctly located, as well as the F1 score
@@ -117,7 +117,7 @@ def peak_classification(test_label, prediction_label, print_on=True):
     if print_on:
         # Print the score of each k fold iteration
         print("*"*20)
-        print("Classification Weighted F1 score (%) = "+ str(round(weighted_f1_score*100, 2)))
+        print(f"Classification Weighted F1 score (%) = {round(weighted_f1_score*100, 2)}")
         print("*"*20)
 
     return weighted_f1_score

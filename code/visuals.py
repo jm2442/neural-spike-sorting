@@ -75,7 +75,7 @@ def samples(data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
-                ax[j].set_xlabel('Spike '+ str(j+1))
+                ax[j].set_xlabel(f"Spike {j+1}")
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
@@ -128,7 +128,7 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
-                ax[j].set_xlabel('Spike '+ str(j+1))
+                ax[j].set_xlabel(f"Spike {j+1}")
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
@@ -155,7 +155,7 @@ def KNN(test_data, prediction_label, data_samples, interval=1):
         clust_mean = np.array(cluster_list[i]).mean(axis=0)
         clust_std = np.array(cluster_list[i]).std(axis=0)
 
-        ax[1].plot(time, clust_mean, label='Spike {}'.format(i+1))
+        ax[1].plot(time, clust_mean, label=f'Spike {i+1}')
         ax[1].fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
 
     ax[1].set_title('Average Waveforms')
@@ -184,7 +184,7 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         for wave in wave_cluster:
             if k % interval == 0:
                 ax[j].plot(wave, linewidth= 0.5, color='k', alpha =0.2)
-                ax[j].set_xlabel('Spike '+ str(j+1))
+                ax[j].set_xlabel(f'Spike {j+1}')
             k += 1
         ax[j].set_ylim([-2,12])
         j += 1
@@ -200,7 +200,7 @@ def MLP(test_data, prediction_label, data_samples, interval=1):
         clust_mean = np.array(cluster_list[i]).mean(axis=0)
         clust_std = np.array(cluster_list[i]).std(axis=0)
 
-        ax.plot(time, clust_mean, label='Spike {}'.format(i+1))
+        ax.plot(time, clust_mean, label=f'Spike {i+1}')
         ax.fill_between(time, clust_mean-clust_std, clust_mean+clust_std, alpha=0.15)
 
     ax.set_title('Average Waveforms')
@@ -256,7 +256,7 @@ def spike_train(x_start, x_end, time, data, pred):
     points=['black','blue','green','purple']
     i = 0
     for spike in spike_trains:
-        ax.scatter(spike[0], spike[1], color=points[i], marker='v', linewidths=1,label='Spike {}'.format(neuron_types[i]))
+        ax.scatter(spike[0], spike[1], color=points[i], marker='v', linewidths=1,label=f'Spike {neuron_types[i]}')
         i += 1
 
     ax.set_ylim([-2.5,16])

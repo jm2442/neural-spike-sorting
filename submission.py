@@ -85,7 +85,7 @@ if __name__ == "__main__":
     ########## OUTPUTS ##########
     # Output the dataset for the chosen classifier
     cand_num = '13224'
-    spio.savemat('datasets/'+cand_num+'.mat', output)
+    spio.savemat(f"datasets/{cand_num}.mat", output)
 
     if plot_on:
         # Plot the output of the filtering and peak detection performed over the set interval
@@ -96,12 +96,12 @@ if __name__ == "__main__":
         num_spike = visuals.spike_train(x_start, x_end, time, d, predictions)
 
         # Print number of peaks
-        print("Number of 1st neuron: " + str(num_spike[0]))
-        print("Number of 2nd neuron: " + str(num_spike[1]))
-        print("Number of 3rd neuron: " + str(num_spike[2]))
-        print("Number of 4th neuron: " + str(num_spike[3]))
+        print(f"Number of 1st neuron: {num_spike[0]}")
+        print(f"Number of 2nd neuron: {num_spike[1]}")
+        print(f"Number of 3rd neuron: {num_spike[2]}")
+        print(f"Number of 4th neuron: {num_spike[3]}")
 
-        print("Total number of peaks found: " + str(len(predictions)))
+        print(f"Total number of peaks found: {len(predictions)}")
 
         # Plot the average waveform for each of the classified neurons
         if clf_type == 'MLP':
