@@ -31,7 +31,7 @@ def NeuralNet(train_data, train_label, test_data, test_label, num_layers, num_ne
 
         if plot_on: 
             # Plot the confusion matrix for the classifier's performance
-            plot.confusion_matrix(MLP, test_X, test_label)
+            visuals.confusion_matrix(MLP, test_X, test_label)
 
         # Predict the output for the test data and return it alongside its corresponding index location
         pred_Y = MLP.predict(test_X)
@@ -59,7 +59,7 @@ def KNearNeighbor(train_data, train_label, test_data, test_label, neighbors, wei
 
         if plot_on:
             # Plot the confusion matrix for the classifier's performance
-            plot.confusion_matrix(KNN, test_X, test_label)
+            visuals.confusion_matrix(KNN, test_X, test_label)
 
         # Predict the output for the test data and return it alongside its corresponding index location
         pred_Y = KNN.predict(test_X)

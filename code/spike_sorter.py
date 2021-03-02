@@ -12,7 +12,7 @@ from code import spike_detection as spdt
 from code import alignment as align
 from code import feature_extract_reduce as feat_ex_reduce
 from code import classification as classifier
-from code import plot
+from code import visuals
 from code import performance_metrics as metrics
     
 def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=True, x_start = 0.24, x_end = 0.29):
@@ -23,10 +23,10 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
     print(params)
 
     # Extract parameters for sorter depending on classification method chosen
-    if clf_type == 2:
+    if clf_type == 'MLP':
         samp_freq, window_size, act_function, alpha, learn_rate_type, learn_rate_init, max_iter = fixed_arguments
         low_cutoff, high_cutoff, smooth_size, edo_thresh_factor,num_layers, num_neurons = params
-    elif clf_type == 3:
+    elif clf_type == 'KNN':
         samp_freq, window_size, pca_dim, weights = fixed_arguments
         low_cutoff, high_cutoff, smooth_size, edo_thresh_factor,num_neighbors = params
 
@@ -59,7 +59,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
 
         # Set number of k fold splits to account for the proportion of training to test data, 5 = 80/20, 4 = 75/25 etc.
         k_splits = 5
-        if clf_type == 2:
+        if clf_type == 'MLP':
             
             # Split the data by index of k iterations to preform k fold cross validation
             kf  = KFold(n_splits=k_splits)
@@ -78,7 +78,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
 
                 kth_score.append(f1_score)
 
-        elif clf_type == 3:
+        elif clf_type == 'KNN':
 
             # Preform PCA to extract the most important features and reduce dimension
             d_samp_window = [x[0] for x in d_samp]
@@ -122,18 +122,18 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
             train_test_samples = [[d_samp_window[x], found_pk_lbl[x]] for x in range(len(d_samp_window))]
 
             # Plot filtering and peak detection over set interval
-            plot.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
+            visuals.filter_and_detection(x_start, x_end, time, d, time_test, idx_train, idx_test, filt_d, smth_d, smth_thresh, edo_d, edo_thresh)
 
             # Plot extracted labelled spikes from training data
-            plot.samples(train_test_samples, 1)
+            visuals.samples(train_test_samples, 1)
 
-            if clf_type == 2:
+            if clf_type == 'MLP':
                 # Plot predictions from MLP classifier
-                plot.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
-            elif clf_type == 3:
+                visuals.MLP(no_lbl_test_data, no_idx_pred_lbl, d_samp_window)
+            elif clf_type == 'KNN':
                 # Plot predictions from PCA & KNN classifier
-                plot.PCA(pca_out)
-                plot.KNN(no_lbl_test_data, no_idx_pred_lbl, np.array(d_samp_window)[test_k])
+                visuals.PCA(pca_out)
+                visuals.KNN(no_lbl_test_data, no_idx_pred_lbl, np.array(d_samp_window)[test_k])
 
             plt.show()
         
@@ -145,7 +145,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
 
     else:
 
-        if clf_type == 2:
+        if clf_type == 'MLP':
 
             train_d = np.array(d_samp)
             train_lbl = np.array(found_pk_lbl)
@@ -157,7 +157,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
 
             return MLP
 
-        elif clf_type == 3:
+        elif clf_type == 'KNN':
             # Preform PCA to extract the most important features and reduce dimension
             d_samp_window = [x[0] for x in d_samp]
             pca = feat_ex_reduce.dimension_reducer(d_samp_window, pca_dim)

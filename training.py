@@ -25,13 +25,13 @@ def parameters(clf_type):
     #5          #10         #5          #7  
     }
     
-    if clf_type == 2:
-        # Optimal Params found by optimiser clf_type 2
+    if clf_type == 'MLP':
+        # Optimal Params found by optimiser MLP
         params["num_layers"] = 1.0
         params["num_neurons"] = 100.0
 
-    elif clf_type == 3:
-        # Optimal Params found by optimiser clf_type 3 
+    elif clf_type == 'KNN':
+        # Optimal Params found by optimiser KNN 
         params["num_neighbours"] = 7                     
 
     # Output parameters as list to pass to optimiser
@@ -51,13 +51,13 @@ def bounds(clf_type):
     b4 = (5, 100)
     bounds_pro = [b1, b2, b3, b4]  
 
-    if clf_type == 2:
+    if clf_type == 'MLP':
         # Bounds for MLP-classifer specific parameters
         b6 = (1.0, 3.999)
         b7 = (22, 150)
         bounds_class = [b6, b7]
 
-    elif clf_type == 3:
+    elif clf_type == 'KNN':
         # Bounds for KNN-classifer specific parameters
 
         b6 = (5, 50.99999)
@@ -74,7 +74,7 @@ def fixed_arguments(clf_type):
         "window_size": 90
         }
 
-    if clf_type == 2:
+    if clf_type == 'MLP':
         #  fixed arguments for clf_type 2
         args["act_function"] = 'relu'
         args["alpha"] = 0.0001
@@ -82,7 +82,7 @@ def fixed_arguments(clf_type):
         args["learn_rate_init"] = 0.001
         args["max_iter"] = 100
 
-    elif clf_type == 3:
+    elif clf_type == 'KNN':
         # fixed arguments for clf_type 3 
         args["pca_dim"] = 3
         args["weights"] = 'distance'
@@ -98,8 +98,8 @@ def fixed_arguments(clf_type):
 if __name__ == "__main__":
 
     ########## INPUTS ##########
-    # Set the Classifier of choice. 2 (MLP) or 3 (KNN)
-    clf_type = 3
+    # Set the Classifier of choice. (MLP) or (KNN)
+    clf_type = 'KNN'
 
     # Toggle between running the optimiser or evaluating the training only once
     optimiser = False
