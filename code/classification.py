@@ -3,8 +3,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 
-# Import modules for functions required
-from modules import plot
+# Import code for functions required
+from code import visuals
 
 def NeuralNet(train_data, train_label, test_data, test_label, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on=False, evaluate=True):
     # Returns either the predictions from a trained multi-layer perceptron model or the trained model itself

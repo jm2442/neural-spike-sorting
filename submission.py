@@ -3,14 +3,14 @@ import pickle
 import scipy.io as spio
 import numpy as np
 import matplotlib.pyplot as plt
-# Import modules for functions required
+# Import code for functions required
 import training as opt
-from modules import spike_sorter as spsrt
-from modules import filtering as filt
-from modules import spike_detection as spdt
-from modules import alignment as align
-from modules import feature_extract_reduce as feat_ex_reduce
-from modules import plot
+from code import spike_sorter as spsrt
+from code import filtering as filt
+from code import spike_detection as spdt
+from code import alignment as align
+from code import feature_extract_reduce as feat_ex_reduce
+from code import visuals
 
 ########## INPUTS ##########    
 # Set the Classifier of choice. 2 (MLP) or 3 (KNN)

@@ -1,6 +1,6 @@
 # Import libraries required
 import scipy.optimize as opt 
-from modules import spike_sorter as spsrt
+from code import spike_sorter as spsrt
 import math
 
 def objective(x, fixed_args, clf_type, print_on, plot_on, evaluate, x_start, x_end):

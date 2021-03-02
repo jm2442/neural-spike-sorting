@@ -6,14 +6,14 @@ import numpy as np
 import sklearn as sk
 import math
 import pickle
-# Import modules for functions required
-from modules import filtering as filt
-from modules import spike_detection as spdt
-from modules import alignment as align
-from modules import feature_extract_reduce as feat_ex_reduce
-from modules import classification as classifier
-from modules import plot
-from modules import performance_metrics as metrics
+# Import code for functions required
+from code import filtering as filt
+from code import spike_detection as spdt
+from code import alignment as align
+from code import feature_extract_reduce as feat_ex_reduce
+from code import classification as classifier
+from code import plot
+from code import performance_metrics as metrics
     
 def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=True, x_start = 0.24, x_end = 0.29):
     # Returns an evaluate score on a trained model's performance or the trained model itself

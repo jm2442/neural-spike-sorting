@@ -2,8 +2,8 @@
 from scipy.signal import find_peaks
 from statistics import mean
 import numpy as np
-# Import modules for functions required
-from modules import performance_metrics as metrics
+# Import code for functions required
+from code import performance_metrics as metrics
 
 def threshold_finder(filtered_data, thresh_factor=5):
     # Returns the threshold to be used that is calcuated using the estimate of the noise's std multiplied by an input threshold factor
