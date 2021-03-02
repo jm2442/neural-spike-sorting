@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     ########## INPUTS ##########
     # Set the Classifier of choice. (MLP) or (KNN)
-    clf_type = 'KNN'
+    clf_type = 'KNN' 
 
     # Toggle between running the optimiser or evaluating the training only once
     optimiser = False
