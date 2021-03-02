@@ -71,7 +71,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
                 train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
 
                 # Perform classification using a Multi-Layer Perceptron
-                pred_lbl = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on)
+                pred_lbl = classifier.neural_net(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on)
 
                 # Compute the metrics of the classifcation and add to list of k number of scores
                 f1_score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
@@ -95,7 +95,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
                 train_lbl, test_lbl = np.array(found_pk_lbl)[train_k], np.array(found_pk_lbl)[test_k]
 
                 # Perform classification using K Nearest Neighbours
-                pred_lbl = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on)
+                pred_lbl = classifier.k_near_neighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on)
 
                 # Compute the metrics of the classifcation and add to list of k number of scores
                 f1_score = metrics.peak_classification(test_lbl, pred_lbl, print_on)
@@ -153,7 +153,7 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
             test_lbl = []
 
             # Build, train and return MLP model to be applied to submission dataset
-            MLP = classifier.NeuralNet(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on, evaluate=False)
+            MLP = classifier.neural_net(train_d, train_lbl, test_d, test_lbl, num_layers, num_neurons, act_function, alpha, learn_rate_type, learn_rate_init, max_iter, plot_on, evaluate=False)
 
             return MLP
 
@@ -169,6 +169,6 @@ def spike_sorter(params, fixed_arguments, clf_type, print_on, plot_on, evaluate=
             test_lbl = []
 
             # Build, train and return KNN model to be applied to submission dataset
-            KNN = classifier.KNearNeighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on, evaluate=False)
+            KNN = classifier.k_near_neighbor(train_d, train_lbl, test_d, test_lbl, num_neighbors, weights, plot_on, evaluate=False)
 
             return KNN
